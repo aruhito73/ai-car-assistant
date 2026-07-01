@@ -348,6 +348,112 @@ describe('CarContext Unit Tests', () => {
     expect(storage.getExpenses()).toEqual([]);
   });
 
+  it('should support multiple vehicles management (adding, switching, and deleting)', () => {
+    const MultiCarTestComponent = () => {
+      const {
+        car,
+        cars,
+        activeCarVin,
+        setActiveCarVin,
+        addCarProfile,
+        deleteCarProfile,
+        serviceHistory,
+        addServiceLog
+      } = useCar();
+
+      return (
+        <div>
+          <span data-testid="active-vin">{activeCarVin || 'none'}</span>
+          <span data-testid="cars-count">{cars ? cars.length : 0}</span>
+          <span data-testid="services-count">{serviceHistory.length}</span>
+          
+          <button 
+            data-testid="btn-add-lada" 
+            onClick={() => addCarProfile({ vin: 'LADA1234567890123', make: 'Lada', model: 'Granta', year: 2017 })}
+          >
+            Add Lada
+          </button>
+          
+          <button 
+            data-testid="btn-add-jetta" 
+            onClick={() => addCarProfile({ vin: 'JETTA123456789012', make: 'VW', model: 'Jetta', year: 2018 })}
+          >
+            Add Jetta
+          </button>
+          
+          <button 
+            data-testid="btn-select-lada" 
+            onClick={() => setActiveCarVin('LADA1234567890123')}
+          >
+            Select Lada
+          </button>
+
+          <button 
+            data-testid="btn-add-service" 
+            onClick={() => addServiceLog({ date: '2026-01-01', mileage: 5000, type: 'Oil Change', cost: 100 })}
+          >
+            Add Service Log
+          </button>
+
+          <button 
+            data-testid="btn-delete-lada" 
+            onClick={() => deleteCarProfile('LADA1234567890123')}
+          >
+            Delete Lada
+          </button>
+        </div>
+      );
+    };
+
+    render(
+      <CarProvider>
+        <MultiCarTestComponent />
+      </CarProvider>
+    );
+
+    // Initial state: 0 cars
+    expect(screen.getByTestId('cars-count').textContent).toBe('0');
+    expect(screen.getByTestId('active-vin').textContent).toBe('none');
+
+    // Add Lada
+    act(() => {
+      screen.getByTestId('btn-add-lada').click();
+    });
+    expect(screen.getByTestId('cars-count').textContent).toBe('1');
+    expect(screen.getByTestId('active-vin').textContent).toBe('LADA1234567890123');
+
+    // Add Service to Lada
+    act(() => {
+      screen.getByTestId('btn-add-service').click();
+    });
+    expect(screen.getByTestId('services-count').textContent).toBe('1');
+
+    // Add Jetta
+    act(() => {
+      screen.getByTestId('btn-add-jetta').click();
+    });
+    expect(screen.getByTestId('cars-count').textContent).toBe('2');
+    expect(screen.getByTestId('active-vin').textContent).toBe('JETTA123456789012');
+    // Jetta service count should be 0 because it's scoped per vehicle!
+    expect(screen.getByTestId('services-count').textContent).toBe('0');
+
+    // Switch back to Lada
+    act(() => {
+      screen.getByTestId('btn-select-lada').click();
+    });
+    expect(screen.getByTestId('active-vin').textContent).toBe('LADA1234567890123');
+    // Lada service count should be 1
+    expect(screen.getByTestId('services-count').textContent).toBe('1');
+
+    // Delete Lada
+    act(() => {
+      screen.getByTestId('btn-delete-lada').click();
+    });
+    expect(screen.getByTestId('cars-count').textContent).toBe('1');
+    expect(screen.getByTestId('active-vin').textContent).toBe('JETTA123456789012'); // automatically switches to the remaining car
+    expect(screen.getByTestId('services-count').textContent).toBe('0');
+  });
+
   it('should throw an error when useCar is called outside CarProvider', () => {
     const BadComponent = () => {
       useCar();

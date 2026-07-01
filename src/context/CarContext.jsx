@@ -116,9 +116,9 @@ export const CarProvider = ({ children }) => {
     }
   };
 
-  const serviceHistory = allServiceHistory.filter(item => item.carVin === activeCarVin);
-  const expenses = allExpenses.filter(item => item.carVin === activeCarVin);
-  const reminders = allReminders.filter(item => item.carVin === activeCarVin);
+  const serviceHistory = allServiceHistory.filter(item => !activeCarVin ? !item.carVin : item.carVin === activeCarVin);
+  const expenses = allExpenses.filter(item => !activeCarVin ? !item.carVin : item.carVin === activeCarVin);
+  const reminders = allReminders.filter(item => !activeCarVin ? !item.carVin : item.carVin === activeCarVin);
 
   const addServiceLog = (log) => {
     const newLog = { id: generateId(), carVin: activeCarVin, ...log };

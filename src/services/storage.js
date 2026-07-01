@@ -149,9 +149,24 @@ export const storage = {
   },
 
   getCarProfile() {
+    const legacy = this.getCarProfileLegacy();
     const cars = this.getCars();
     const activeVin = this.getActiveCarVin();
-    return cars.find(c => c.vin === activeVin) || cars[0] || null;
+    const activeCar = cars.find(c => c.vin === activeVin) || cars[0] || null;
+
+    if (legacy && (!activeCar || legacy.vin !== activeCar.vin || legacy.make !== activeCar.make || legacy.model !== activeCar.model || legacy.year !== activeCar.year || legacy.currentMileage !== activeCar.currentMileage)) {
+      const index = cars.findIndex(c => c.vin === legacy.vin);
+      if (index >= 0) {
+        cars[index] = legacy;
+      } else {
+        cars.push(legacy);
+      }
+      this.saveCars(cars);
+      this.saveActiveCarVin(legacy.vin || null);
+      return legacy;
+    }
+
+    return activeCar;
   },
 
   saveCarProfile(profile) {

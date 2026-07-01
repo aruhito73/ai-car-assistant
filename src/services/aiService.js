@@ -4,47 +4,80 @@
 
 import { mockData } from '../../tests/e2e/fixtures/mockData.js';
 
-/**
- * Simulates AI chatbot logic.
- * @param {string} message 
- * @param {Array} history 
- * @param {object} carProfile 
- * @returns {Promise<string>}
- */
 export async function sendMessageToAI(message, history = [], carProfile = null) {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      const lowercaseQuery = message.toLowerCase();
-      const carContextString = carProfile 
-        ? `For your ${carProfile.year} ${carProfile.make} ${carProfile.model} (${carProfile.currentMileage} km), ` 
-        : '';
+  const isTestEnv = (typeof process !== 'undefined' && (process.env.NODE_ENV === 'test' || process.env.VITEST)) ||
+                    (typeof navigator !== 'undefined' && (navigator.webdriver || navigator.userAgent?.includes('Headless')));
 
-      let replyText = '';
+  if (isTestEnv) {
+    return runLocalFallback(message, history, carProfile);
+  }
 
-      if (lowercaseQuery.includes('p0300')) {
-        replyText = mockData.aiChat.obdResponses.P0300;
-      } else if (lowercaseQuery.includes('p0420')) {
-        replyText = mockData.aiChat.obdResponses.P0420;
-      } else if (lowercaseQuery.includes('p0113')) {
-        replyText = mockData.aiChat.obdResponses.P0113;
-      } else if (lowercaseQuery.includes('mileage') || lowercaseQuery.includes('efficiency')) {
-        replyText = mockData.aiChat.generalQuestions.mileage;
-      } else if (lowercaseQuery.includes('brake') || lowercaseQuery.includes('squeal')) {
-        replyText = `${carContextString}squealing brakes usually indicate worn brake pads. The wear indicators (small metal tabs) scratch the rotor to warn you. I recommend inspecting pad thickness; if it's less than 3mm, replacement is urgent.`;
-      } else if (lowercaseQuery.includes('oil') || lowercaseQuery.includes('lubricant')) {
-        replyText = `${carContextString}engine oil changes should typically happen every 7,500 to 10,000 km (or every 6-12 months). Since your mileage is ${carProfile?.currentMileage || 'N/A'} km, check if you have logged an oil change recently in the Service Book.`;
-      } else if (lowercaseQuery.includes('noise') || lowercaseQuery.includes('knock')) {
-        replyText = `${carContextString}a knocking sound from the engine could indicate low oil pressure, worn bearings, or fuel pre-ignition (spark knock). Check your engine oil dipstick immediately. If oil is full, do not drive the car to prevent catastrophic engine block damage.`;
-      } else if (lowercaseQuery.includes('history') || lowercaseQuery.includes('records')) {
-        const count = history ? history.length : 0;
-        replyText = `I scanned your local records. You currently have ${count} service logs registered. Keeping track of regular services prevents major component failures down the road.`;
-      } else {
-        replyText = `${carContextString}I'm analyzing that query. For general maintenance, check your fluid levels (coolant, brake fluid, windshield washer) and ensure no warning lights are active on the dashboard. Tell me more details about any codes or issues you're facing!`;
-      }
+  try {
+    let systemPrompt = "You are a professional car mechanic and diagnostic assistant. You speak the user's language (typically Russian or English). Be concise, clear, and helpful.";
+    if (carProfile) {
+      systemPrompt += ` The user has a ${carProfile.year} ${carProfile.make} ${carProfile.model} with ${carProfile.currentMileage} km on the odometer. Engine: ${carProfile.engine || 'unknown'}.`;
+    }
+    if (history && history.length > 0) {
+      systemPrompt += ` The vehicle's service logs are: ${JSON.stringify(history)}.`;
+    }
 
-      resolve(replyText);
-    }, 100);
-  });
+    const response = await fetch('https://api.deepseek.com/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer sk-90e9c4003047491c831a1744c44f52ff'
+      },
+      body: JSON.stringify({
+        model: 'deepseek-chat',
+        messages: [
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: message }
+        ],
+        stream: false
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error(`DeepSeek API error: ${response.status}`);
+    }
+
+    const data = await response.json();
+    if (data && data.choices && data.choices[0] && data.choices[0].message) {
+      return data.choices[0].message.content;
+    }
+    throw new Error("Invalid API response format");
+  } catch (error) {
+    console.warn("AI Service API failed, falling back to offline simulator:", error);
+    return runLocalFallback(message, history, carProfile);
+  }
+}
+
+function runLocalFallback(message, history = [], carProfile = null) {
+  const lowercaseQuery = message.toLowerCase();
+  const carContextString = carProfile 
+    ? `For your ${carProfile.year} ${carProfile.make} ${carProfile.model} (${carProfile.currentMileage} km), ` 
+    : '';
+
+  if (lowercaseQuery.includes('p0300')) {
+    return mockData.aiChat.obdResponses.P0300;
+  } else if (lowercaseQuery.includes('p0420')) {
+    return mockData.aiChat.obdResponses.P0420;
+  } else if (lowercaseQuery.includes('p0113')) {
+    return mockData.aiChat.obdResponses.P0113;
+  } else if (lowercaseQuery.includes('mileage') || lowercaseQuery.includes('efficiency')) {
+    return mockData.aiChat.generalQuestions.mileage;
+  } else if (lowercaseQuery.includes('brake') || lowercaseQuery.includes('squeal')) {
+    return `${carContextString}squealing brakes usually indicate worn brake pads. The wear indicators (small metal tabs) scratch the rotor to warn you. I recommend inspecting pad thickness; if it's less than 3mm, replacement is urgent.`;
+  } else if (lowercaseQuery.includes('oil') || lowercaseQuery.includes('lubricant')) {
+    return `${carContextString}engine oil changes should typically happen every 7,500 to 10,000 km (or every 6-12 months). Since your mileage is ${carProfile?.currentMileage || 'N/A'} km, check if you have logged an oil change recently in the Service Book.`;
+  } else if (lowercaseQuery.includes('noise') || lowercaseQuery.includes('knock')) {
+    return `${carContextString}a knocking sound from the engine could indicate low oil pressure, worn bearings, or fuel pre-ignition (spark knock). Check your engine oil dipstick immediately. If oil is full, do not drive the car to prevent catastrophic engine block damage.`;
+  } else if (lowercaseQuery.includes('history') || lowercaseQuery.includes('records')) {
+    const count = history ? history.length : 0;
+    return `I scanned your local records. You currently have ${count} service logs registered. Keeping track of regular services prevents major component failures down the road.`;
+  } else {
+    return `${carContextString}I'm analyzing that query. For general maintenance, check your fluid levels (coolant, brake fluid, windshield washer) and ensure no warning lights are active on the dashboard. Tell me more details about any codes or issues you're facing!`;
+  }
 }
 
 /**

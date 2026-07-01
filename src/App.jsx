@@ -10,6 +10,10 @@ import ServiceView from '@/views/ServiceView';
 import FinanceView from '@/views/FinanceView';
 import ChatView from '@/views/ChatView';
 import PartsView from '@/views/PartsView';
+import DocumentsView from '@/views/DocumentsView';
+import FuelLogView from '@/views/FuelLogView';
+import ObdLookupView from '@/views/ObdLookupView';
+import SettingsView from '@/views/SettingsView';
 
 import { useCar } from '@/context/CarContext';
 
@@ -18,14 +22,14 @@ function AppContent() {
   // Hash-based client-side router
   const [currentView, setCurrentView] = useState(() => {
     const hash = window.location.hash.replace('#', '');
-    const validViews = ['dashboard', 'profile', 'parts', 'services', 'finance', 'chat'];
+    const validViews = ['dashboard', 'profile', 'parts', 'services', 'finance', 'chat', 'documents', 'fuel', 'obd', 'settings'];
     return validViews.includes(hash) ? hash : 'dashboard';
   });
 
   useEffect(() => {
     const handleHashChange = () => {
       const hash = window.location.hash.replace('#', '');
-      const validViews = ['dashboard', 'profile', 'parts', 'services', 'finance', 'chat'];
+      const validViews = ['dashboard', 'profile', 'parts', 'services', 'finance', 'chat', 'documents', 'fuel', 'obd', 'settings'];
       if (validViews.includes(hash)) {
         setCurrentView(hash);
       }
@@ -42,7 +46,7 @@ function AppContent() {
   }, []);
 
   useEffect(() => {
-    const restrictedViews = ['chat', 'services', 'finance'];
+    const restrictedViews = ['chat', 'services', 'finance', 'documents', 'fuel'];
     if (!car && restrictedViews.includes(currentView)) {
       setCurrentView('dashboard');
       window.location.hash = 'dashboard';
@@ -69,6 +73,14 @@ function AppContent() {
         return <FinanceView />;
       case 'chat':
         return <ChatView />;
+      case 'documents':
+        return <DocumentsView />;
+      case 'fuel':
+        return <FuelLogView />;
+      case 'obd':
+        return <ObdLookupView />;
+      case 'settings':
+        return <SettingsView />;
       default:
         return <DashboardView />;
     }

@@ -13,7 +13,11 @@ export const Header = ({ currentView, onMenuToggle, onViewChange }) => {
     parts: t('Запчасти и каталоги', 'Parts & Catalogs'),
     services: t('Журнал обслуживания', 'Maintenance Log'),
     finance: t('Финансовая аналитика', 'Financial Analytics'),
-    chat: t('ИИ-Консультант', 'AI Assistant')
+    chat: t('ИИ-Консультант', 'AI Assistant'),
+    documents: t('Документы автомобиля', 'Vehicle Documents'),
+    fuel: t('Журнал заправок', 'Fuel Diary'),
+    obd: t('Справочник OBD-2', 'OBD-2 Finder'),
+    settings: t('Настройки приложения', 'Settings')
   };
 
   return (

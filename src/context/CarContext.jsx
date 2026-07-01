@@ -29,6 +29,18 @@ export const CarProvider = ({ children }) => {
     const list = storage.getReminders() || [];
     return list.map(item => (!item.carVin && initialActiveVin) ? { ...item, carVin: initialActiveVin } : item);
   });
+  const [allDocuments, setAllDocuments] = useState(() => {
+    const list = storage.getDocuments() || [];
+    return list.map(item => (!item.carVin && initialActiveVin) ? { ...item, carVin: initialActiveVin } : item);
+  });
+  const [allFuelLog, setAllFuelLog] = useState(() => {
+    const list = storage.getFuelLog() || [];
+    return list.map(item => (!item.carVin && initialActiveVin) ? { ...item, carVin: initialActiveVin } : item);
+  });
+  const [allCustomIntervals, setAllCustomIntervals] = useState(() => {
+    const list = storage.getCustomIntervals() || [];
+    return list.map(item => (!item.carVin && initialActiveVin) ? { ...item, carVin: initialActiveVin } : item);
+  });
 
   const activeCar = cars.find(c => c.vin === activeCarVin) || cars[0] || null;
 
@@ -80,6 +92,21 @@ export const CarProvider = ({ children }) => {
         storage.saveReminders(next);
         return next;
       });
+      setAllDocuments((prev) => {
+        const next = prev.map(item => item.carVin === oldVin ? { ...item, carVin: profile.vin } : item);
+        storage.saveDocuments(next);
+        return next;
+      });
+      setAllFuelLog((prev) => {
+        const next = prev.map(item => item.carVin === oldVin ? { ...item, carVin: profile.vin } : item);
+        storage.saveFuelLog(next);
+        return next;
+      });
+      setAllCustomIntervals((prev) => {
+        const next = prev.map(item => item.carVin === oldVin ? { ...item, carVin: profile.vin } : item);
+        storage.saveCustomIntervals(next);
+        return next;
+      });
       setActiveCarVin(profile.vin);
     } else {
       setActiveCarVin(profile.vin);
@@ -108,6 +135,21 @@ export const CarProvider = ({ children }) => {
       storage.saveReminders(next);
       return next;
     });
+    setAllDocuments((prev) => {
+      const next = prev.filter(item => item.carVin !== vin);
+      storage.saveDocuments(next);
+      return next;
+    });
+    setAllFuelLog((prev) => {
+      const next = prev.filter(item => item.carVin !== vin);
+      storage.saveFuelLog(next);
+      return next;
+    });
+    setAllCustomIntervals((prev) => {
+      const next = prev.filter(item => item.carVin !== vin);
+      storage.saveCustomIntervals(next);
+      return next;
+    });
 
     if (activeCarVin === vin) {
       const remainingCars = cars.filter(c => c.vin !== vin);
@@ -119,6 +161,9 @@ export const CarProvider = ({ children }) => {
   const serviceHistory = allServiceHistory.filter(item => !activeCarVin ? !item.carVin : item.carVin === activeCarVin);
   const expenses = allExpenses.filter(item => !activeCarVin ? !item.carVin : item.carVin === activeCarVin);
   const reminders = allReminders.filter(item => !activeCarVin ? !item.carVin : item.carVin === activeCarVin);
+  const documents = allDocuments.filter(item => !activeCarVin ? !item.carVin : item.carVin === activeCarVin);
+  const fuelLog = allFuelLog.filter(item => !activeCarVin ? !item.carVin : item.carVin === activeCarVin);
+  const customIntervals = allCustomIntervals.filter(item => !activeCarVin ? !item.carVin : item.carVin === activeCarVin);
 
   const addServiceLog = (log) => {
     const newLog = { id: generateId(), carVin: activeCarVin, ...log };
@@ -206,12 +251,98 @@ export const CarProvider = ({ children }) => {
     });
   };
 
+  const addDocument = (doc) => {
+    const newDoc = { id: generateId(), carVin: activeCarVin, ...doc };
+    setAllDocuments((prev) => {
+      const next = [...prev, newDoc];
+      storage.saveDocuments(next);
+      return next;
+    });
+    return newDoc;
+  };
+
+  const updateDocument = (id, updatedDoc) => {
+    setAllDocuments((prev) => {
+      const next = prev.map((doc) => (doc.id === id ? { ...doc, ...updatedDoc } : doc));
+      storage.saveDocuments(next);
+      return next;
+    });
+  };
+
+  const deleteDocument = (id) => {
+    setAllDocuments((prev) => {
+      const next = prev.filter((doc) => doc.id !== id);
+      storage.saveDocuments(next);
+      return next;
+    });
+  };
+
+  const addFuelEntry = (entry) => {
+    const newEntry = { id: generateId(), carVin: activeCarVin, ...entry };
+    setAllFuelLog((prev) => {
+      const next = [...prev, newEntry];
+      storage.saveFuelLog(next);
+      return next;
+    });
+    return newEntry;
+  };
+
+  const updateFuelEntry = (id, updatedEntry) => {
+    setAllFuelLog((prev) => {
+      const next = prev.map((entry) => (entry.id === id ? { ...entry, ...updatedEntry } : entry));
+      storage.saveFuelLog(next);
+      return next;
+    });
+  };
+
+  const deleteFuelEntry = (id) => {
+    setAllFuelLog((prev) => {
+      const next = prev.filter((entry) => entry.id !== id);
+      storage.saveFuelLog(next);
+      return next;
+    });
+    setAllExpenses((prev) => {
+      const next = prev.filter((exp) => exp.refuelId !== id);
+      storage.saveExpenses(next);
+      return next;
+    });
+  };
+
+  const addCustomInterval = (interval) => {
+    const newInterval = { id: generateId(), carVin: activeCarVin, ...interval };
+    setAllCustomIntervals((prev) => {
+      const next = [...prev, newInterval];
+      storage.saveCustomIntervals(next);
+      return next;
+    });
+    return newInterval;
+  };
+
+  const updateCustomInterval = (id, updatedInterval) => {
+    setAllCustomIntervals((prev) => {
+      const next = prev.map((interval) => (interval.id === id ? { ...interval, ...updatedInterval } : interval));
+      storage.saveCustomIntervals(next);
+      return next;
+    });
+  };
+
+  const deleteCustomInterval = (id) => {
+    setAllCustomIntervals((prev) => {
+      const next = prev.filter((interval) => interval.id !== id);
+      storage.saveCustomIntervals(next);
+      return next;
+    });
+  };
+
   const clearAllData = () => {
     setCars([]);
     setActiveCarVinState(null);
     setAllServiceHistory([]);
     setAllExpenses([]);
     setAllReminders([]);
+    setAllDocuments([]);
+    setAllFuelLog([]);
+    setAllCustomIntervals([]);
     storage.clearAll();
   };
 
@@ -227,6 +358,9 @@ export const CarProvider = ({ children }) => {
         serviceHistory,
         expenses,
         reminders,
+        documents,
+        fuelLog,
+        customIntervals,
         updateCarProfile,
         addServiceLog,
         updateServiceLog,
@@ -238,6 +372,15 @@ export const CarProvider = ({ children }) => {
         updateReminder,
         deleteReminder,
         toggleReminder,
+        addDocument,
+        updateDocument,
+        deleteDocument,
+        addFuelEntry,
+        updateFuelEntry,
+        deleteFuelEntry,
+        addCustomInterval,
+        updateCustomInterval,
+        deleteCustomInterval,
         clearAllData
       }}
     >

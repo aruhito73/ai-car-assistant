@@ -4,14 +4,40 @@ import { useTheme } from '@/context/ThemeContext';
 import ProfileView from './ProfileView';
 import GlassCard from '@/components/GlassCard';
 import { recognizeDashboard } from '@/services/ocrService';
+import { AlertTriangle } from 'lucide-react';
 
 export const DashboardView = () => {
   const { t } = useTheme();
-  const { car, updateCarProfile, expenses, serviceHistory } = useCar();
+  const { 
+    car, 
+    updateCarProfile, 
+    expenses, 
+    serviceHistory,
+    documents = [],
+    customIntervals = [] 
+  } = useCar();
   const [ocrError, setOcrError] = useState('');
 
   const totalSpent = ((expenses || []).reduce((sum, item) => sum + (item.cost || 0), 0)) +
                      ((serviceHistory || []).reduce((sum, item) => sum + (item.cost || 0), 0));
+
+  const calculateDaysLeft = (expDateStr) => {
+    if (!expDateStr) return 0;
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const expDate = new Date(expDateStr);
+    expDate.setHours(0, 0, 0, 0);
+    const diff = expDate.getTime() - today.getTime();
+    return Math.ceil(diff / (1000 * 60 * 60 * 24));
+  };
+
+  const expiringDocsCount = documents.filter(d => calculateDaysLeft(d.expiryDate) <= 30).length;
+
+  const overdueCustomIntervalsCount = customIntervals.filter(r => {
+    const currentMileage = car?.currentMileage || 0;
+    const nextDueMileage = r.lastPerformedMileage + (Number(r.intervalMileage) || 10000);
+    return currentMileage >= nextDueMileage;
+  }).length;
 
   const handleOdometerUpload = async (e) => {
     const file = e.target.files?.[0];
@@ -43,6 +69,41 @@ export const DashboardView = () => {
   return (
     <div className="space-y-8 animate-in slide-in-from-bottom-4 duration-500 fade-in">
       <h2 className="text-2xl md:text-3xl font-bold tracking-tight text-slate-900 dark:text-white">{t('Добро пожаловать в ИИ Автоассистент', 'Welcome to AI Car Assistant')}</h2>
+
+      {/* Alert banners for documents and service */}
+      {(expiringDocsCount > 0 || overdueCustomIntervalsCount > 0) && (
+        <div className="space-y-3">
+          {expiringDocsCount > 0 && (
+            <div 
+              onClick={() => window.location.hash = 'documents'}
+              className="p-4 bg-amber-500/10 border border-amber-500/30 text-amber-600 dark:text-amber-400 text-sm font-semibold rounded-2xl cursor-pointer hover:bg-amber-500/15 transition-all flex items-center gap-2"
+            >
+              <AlertTriangle className="w-5 h-5 animate-pulse text-amber-500" />
+              <span>
+                {t(
+                  `Внимание: У вас есть документы (${expiringDocsCount}), срок действия которых истекает или уже истек!`,
+                  `Warning: You have documents (${expiringDocsCount}) expiring soon or already expired!`
+                )}
+              </span>
+            </div>
+          )}
+
+          {overdueCustomIntervalsCount > 0 && (
+            <div 
+              onClick={() => window.location.hash = 'services'}
+              className="p-4 bg-neonRose/10 border border-neonRose/30 text-neonRose text-sm font-semibold rounded-2xl cursor-pointer hover:bg-neonRose/15 transition-all flex items-center gap-2"
+            >
+              <AlertTriangle className="w-5 h-5 animate-pulse" />
+              <span>
+                {t(
+                  `Внимание: Требуется техническое обслуживание автомобиля (${overdueCustomIntervalsCount} задач)!`,
+                  `Warning: Maintenance is overdue for your vehicle (${overdueCustomIntervalsCount} tasks)!`
+                )}
+              </span>
+            </div>
+          )}
+        </div>
+      )}
       
       {ocrError && (
         <div className="p-4 bg-rose-500/10 border border-rose-500/20 rounded-2xl text-rose-600 dark:text-rose-400 text-sm font-medium" role="alert">

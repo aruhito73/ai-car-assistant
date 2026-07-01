@@ -8,7 +8,11 @@ import {
   ChevronLeft, 
   ChevronRight, 
   X,
-  Package
+  Package,
+  FileText,
+  Fuel,
+  Search,
+  Settings
 } from 'lucide-react';
 import { useTheme } from '@/context/ThemeContext';
 
@@ -28,7 +32,11 @@ export const Sidebar = ({
     { id: 'parts', name: t('Запчасти и каталоги', 'Parts & Catalogs'), icon: Package },
     { id: 'services', name: t('Сервисная книжка', 'Maintenance Book'), icon: Wrench },
     { id: 'finance', name: t('Расходы и финансы', 'Finance & Expenses'), icon: DollarSign },
-    { id: 'chat', name: t('ИИ-Механик', 'AI Mechanic'), icon: Cpu }
+    { id: 'documents', name: t('Документы', 'Documents'), icon: FileText },
+    { id: 'fuel', name: t('Журнал заправок', 'Fuel Diary'), icon: Fuel },
+    { id: 'obd', name: t('Поиск OBD-2', 'OBD-2 Finder'), icon: Search },
+    { id: 'chat', name: t('ИИ-Механик', 'AI Mechanic'), icon: Cpu },
+    { id: 'settings', name: t('Настройки', 'Settings'), icon: Settings }
   ];
 
   const sidebarClasses = `

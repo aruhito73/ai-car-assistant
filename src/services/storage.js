@@ -6,7 +6,41 @@ export const storageKeys = {
   THEME: 'ai_theme',
   GLASSMORPHISM: 'ai_glassmorphism',
   CARS: 'ai_cars',
-  ACTIVE_CAR_VIN: 'ai_active_car_vin'
+  ACTIVE_CAR_VIN: 'ai_active_car_vin',
+  DOCUMENTS: 'ai_car_documents',
+  FUEL_LOG: 'ai_car_fuel_log',
+  CUSTOM_INTERVALS: 'ai_car_custom_intervals'
+};
+
+const validateDocument = (item) => {
+  if (!item || typeof item !== 'object' || Array.isArray(item)) return false;
+  if (typeof item.id !== 'string') return false;
+  if (typeof item.type !== 'string') return false;
+  if (typeof item.number !== 'string') return false;
+  if (typeof item.issueDate !== 'string') return false;
+  if (typeof item.expiryDate !== 'string') return false;
+  return true;
+};
+
+const validateFuelEntry = (item) => {
+  if (!item || typeof item !== 'object' || Array.isArray(item)) return false;
+  if (typeof item.id !== 'string') return false;
+  if (typeof item.date !== 'string') return false;
+  if (typeof item.odometer !== 'number' || isNaN(item.odometer)) return false;
+  if (typeof item.liters !== 'number' || isNaN(item.liters)) return false;
+  if (typeof item.pricePerLiter !== 'number' || isNaN(item.pricePerLiter)) return false;
+  if (typeof item.totalCost !== 'number' || isNaN(item.totalCost)) return false;
+  if (typeof item.fullTank !== 'boolean') return false;
+  return true;
+};
+
+const validateCustomInterval = (item) => {
+  if (!item || typeof item !== 'object' || Array.isArray(item)) return false;
+  if (typeof item.id !== 'string') return false;
+  if (typeof item.name !== 'string') return false;
+  if (typeof item.lastPerformedMileage !== 'number' || isNaN(item.lastPerformedMileage)) return false;
+  if (typeof item.lastPerformedDate !== 'string') return false;
+  return true;
 };
 
 const validateServiceLog = (item) => {
@@ -225,6 +259,42 @@ export const storage = {
       localStorage.setItem(storageKeys.REMINDERS, JSON.stringify(reminders || []));
     } catch (e) {
       console.error('Error saving reminders to storage', e);
+    }
+  },
+
+  getDocuments() {
+    return parseArray(storageKeys.DOCUMENTS, validateDocument, []);
+  },
+
+  saveDocuments(docs) {
+    try {
+      localStorage.setItem(storageKeys.DOCUMENTS, JSON.stringify(docs || []));
+    } catch (e) {
+      console.error('Error saving documents to storage', e);
+    }
+  },
+
+  getFuelLog() {
+    return parseArray(storageKeys.FUEL_LOG, validateFuelEntry, []);
+  },
+
+  saveFuelLog(log) {
+    try {
+      localStorage.setItem(storageKeys.FUEL_LOG, JSON.stringify(log || []));
+    } catch (e) {
+      console.error('Error saving fuel log to storage', e);
+    }
+  },
+
+  getCustomIntervals() {
+    return parseArray(storageKeys.CUSTOM_INTERVALS, validateCustomInterval, []);
+  },
+
+  saveCustomIntervals(intervals) {
+    try {
+      localStorage.setItem(storageKeys.CUSTOM_INTERVALS, JSON.stringify(intervals || []));
+    } catch (e) {
+      console.error('Error saving custom intervals to storage', e);
     }
   },
 

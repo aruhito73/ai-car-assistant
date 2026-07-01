@@ -18,7 +18,10 @@ export const ServiceView = () => {
     reminders,
     addReminder,
     deleteReminder,
-    toggleReminder
+    toggleReminder,
+    customIntervals = [],
+    addCustomInterval,
+    deleteCustomInterval
   } = useCar();
   const [type, setType] = useState('');
   const [mileage, setMileage] = useState('');
@@ -46,6 +49,14 @@ export const ServiceView = () => {
   const [remType, setRemType] = useState('insurance');
   const [remMileage, setRemMileage] = useState('');
   const [remError, setRemError] = useState('');
+
+  // Custom Intervals Modal/Form state
+  const [isCustIntervalModalOpen, setIsCustIntervalModalOpen] = useState(false);
+  const [custName, setCustName] = useState('');
+  const [custIntervalMileage, setCustIntervalMileage] = useState('');
+  const [custLastPerformedMileage, setCustLastPerformedMileage] = useState('');
+  const [custLastPerformedDate, setCustLastPerformedDate] = useState(new Date().toISOString().split('T')[0]);
+  const [custError, setCustError] = useState('');
 
   // Helper for consistent comma-based mileage formatting
   const formatMileage = (val) => {
@@ -378,7 +389,15 @@ export const ServiceView = () => {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
         {/* Maintenance Planner Grid (M3.2) */}
         <GlassCard>
-          <h3 className="text-lg font-bold text-neonCyan mb-4">{t('Планировщик обслуживания', 'Maintenance Planner')}</h3>
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-lg font-bold text-neonCyan">{t('Планировщик обслуживания', 'Maintenance Planner')}</h3>
+            <button 
+              onClick={() => setIsCustIntervalModalOpen(true)}
+              className="px-2.5 py-1.5 bg-neonCyan/10 hover:bg-neonCyan/20 text-neonCyan border border-neonCyan/30 rounded-lg text-xs font-semibold transition-all"
+            >
+              + {t('Интервал', 'Add Interval')}
+            </button>
+          </div>
           <div className="space-y-4">
             {getRecommendations().map(rec => (
               <div key={rec.key} className="p-3 bg-white/5 border border-white/5 rounded-xl flex items-center justify-between">
@@ -396,6 +415,54 @@ export const ServiceView = () => {
                 </div>
               </div>
             ))}
+
+            {/* Custom intervals */}
+            {customIntervals.map(rule => {
+              const currentMileage = car?.currentMileage || 0;
+              const nextDueMileage = rule.lastPerformedMileage + (Number(rule.intervalMileage) || 10000);
+              const isOverdue = currentMileage >= nextDueMileage;
+              const progress = Math.min(100, Math.max(0, ((currentMileage - rule.lastPerformedMileage) / (Number(rule.intervalMileage) || 10000)) * 100));
+
+              return (
+                <div key={rule.id} className="p-3 bg-white/5 border border-white/5 rounded-xl space-y-2">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h4 className="font-semibold text-slate-200 text-sm">{rule.name}</h4>
+                      <p className="text-xs text-slate-400">
+                        {t(`След. ТО при ${formatMileage(nextDueMileage)} км`, `Next service at ${formatMileage(nextDueMileage)} km`)}
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-[10px] text-slate-400">
+                        {t('Прошлый раз:', 'Last:')} {formatMileage(rule.lastPerformedMileage)} км
+                      </span>
+                      <button
+                        onClick={() => deleteCustomInterval(rule.id)}
+                        className="p-1 text-slate-400 hover:text-neonRose rounded-lg transition-colors"
+                        title={t('Удалить интервал', 'Delete Interval')}
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  </div>
+                  {/* Progress bar */}
+                  <div className="w-full bg-slate-800 rounded-full h-1.5 overflow-hidden">
+                    <div 
+                      className={`h-1.5 rounded-full ${isOverdue ? 'bg-neonRose' : 'bg-neonCyan'}`}
+                      style={{ width: `${progress}%` }}
+                    />
+                  </div>
+                  <div className="flex justify-between items-center text-[10px]">
+                    <span className={isOverdue ? 'text-neonRose font-bold' : 'text-slate-450'}>
+                      {isOverdue 
+                        ? t(`Просрочено на ${formatMileage(currentMileage - nextDueMileage)} км`, `Overdue by ${formatMileage(currentMileage - nextDueMileage)} km`)
+                        : t(`Осталось ${formatMileage(nextDueMileage - currentMileage)} км`, `Remaining ${formatMileage(nextDueMileage - currentMileage)} km`)}
+                    </span>
+                    <span className="text-slate-500 font-semibold">{progress.toFixed(0)}%</span>
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </GlassCard>
 
@@ -614,6 +681,86 @@ export const ServiceView = () => {
                   </button>
                   <button 
                     id="save-reminder"
+                    type="submit" 
+                    className="px-4 py-2 text-sm bg-neonCyan text-slate-950 font-semibold rounded-xl hover:bg-neonCyan/80 transition-colors"
+                  >
+                    {t('Сохранить', 'Save')}
+                  </button>
+                </div>
+              </form>
+            </GlassCard>
+          </div>
+        </div>
+      )}
+
+      {/* Add Custom Interval Modal */}
+      {isCustIntervalModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-sm">
+          <div className="w-full max-w-md">
+            <GlassCard className="border border-white/10 relative">
+              <h3 className="text-lg font-bold text-neonCyan mb-4">{t('Добавить интервал ТО', 'Add Service Interval')}</h3>
+              <form onSubmit={(e) => {
+                e.preventDefault();
+                if (!custName || !custIntervalMileage || !custLastPerformedMileage) {
+                  setCustError(t('Все поля со звездочкой обязательны', 'All starred fields are required'));
+                  return;
+                }
+                addCustomInterval({
+                  name: custName,
+                  intervalMileage: Number(custIntervalMileage),
+                  lastPerformedMileage: Number(custLastPerformedMileage),
+                  lastPerformedDate: custLastPerformedDate
+                });
+                setCustName('');
+                setCustIntervalMileage('');
+                setCustLastPerformedMileage('');
+                setCustLastPerformedDate(new Date().toISOString().split('T')[0]);
+                setCustError('');
+                setIsCustIntervalModalOpen(false);
+              }} className="space-y-4">
+                <InputField 
+                  id="cust-name"
+                  label={t('Название работы *', 'Service Name *')}
+                  value={custName}
+                  onChange={(e) => setCustName(e.target.value)}
+                  placeholder={t('Например, Замена масла АКПП', 'e.g. Gearbox Oil Change')}
+                />
+                <InputField 
+                  id="cust-interval"
+                  label={t('Периодичность (км) *', 'Interval Mileage (km) *')}
+                  type="number"
+                  value={custIntervalMileage}
+                  onChange={(e) => setCustIntervalMileage(e.target.value)}
+                  placeholder="e.g. 60000"
+                />
+                <InputField 
+                  id="cust-last-mileage"
+                  label={t('Пробег при последнем выполнении *', 'Last Performed Mileage (km) *')}
+                  type="number"
+                  value={custLastPerformedMileage}
+                  onChange={(e) => setCustLastPerformedMileage(e.target.value)}
+                  placeholder="e.g. 45000"
+                />
+                <InputField 
+                  id="cust-last-date"
+                  label={t('Дата последнего выполнения *', 'Last Performed Date *')}
+                  type="date"
+                  value={custLastPerformedDate}
+                  onChange={(e) => setCustLastPerformedDate(e.target.value)}
+                />
+                {custError && <p className="text-xs text-neonRose">{custError}</p>}
+                <div className="flex gap-3 justify-end pt-2">
+                  <button 
+                    type="button" 
+                    onClick={() => {
+                      setIsCustIntervalModalOpen(false);
+                      setCustError('');
+                    }}
+                    className="px-4 py-2 text-sm text-slate-400 hover:text-white transition-colors"
+                  >
+                    {t('Отмена', 'Cancel')}
+                  </button>
+                  <button 
                     type="submit" 
                     className="px-4 py-2 text-sm bg-neonCyan text-slate-950 font-semibold rounded-xl hover:bg-neonCyan/80 transition-colors"
                   >

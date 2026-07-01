@@ -14,7 +14,9 @@ export const DashboardView = () => {
     expenses, 
     serviceHistory,
     documents = [],
-    customIntervals = [] 
+    customIntervals = [],
+    lastWashDate,
+    updateLastWashDate
   } = useCar();
   const [ocrError, setOcrError] = useState('');
 
@@ -38,6 +40,26 @@ export const DashboardView = () => {
     const nextDueMileage = r.lastPerformedMileage + (Number(r.intervalMileage) || 10000);
     return currentMileage >= nextDueMileage;
   }).length;
+
+  const getCleanlinessDetails = () => {
+    if (!lastWashDate) {
+      return { label: t('Неизвестно (давно не мылась)', 'Unknown (never washed)'), percent: 10, colorClass: 'text-neonRose border-neonRose/30 bg-neonRose/5', shadowClass: 'shadow-[0_0_15px_rgba(244,63,94,0.15)]' };
+    }
+    const today = new Date();
+    today.setHours(0,0,0,0);
+    const wash = new Date(lastWashDate);
+    wash.setHours(0,0,0,0);
+    const diffDays = Math.max(0, Math.ceil((today.getTime() - wash.getTime()) / (1000 * 60 * 60 * 24)));
+    if (diffDays <= 3) {
+      return { label: t('Идеально чистый', 'Sparkling Clean'), percent: 100, colorClass: 'text-neonEmerald border-neonEmerald/30 bg-neonEmerald/5', shadowClass: 'shadow-[0_0_20px_rgba(16,185,129,0.25)]' };
+    } else if (diffDays <= 7) {
+      return { label: t('Немного пыльный', 'Slightly Dusty'), percent: 75, colorClass: 'text-neonCyan border-neonCyan/30 bg-neonCyan/5', shadowClass: 'shadow-[0_0_15px_rgba(6,182,212,0.15)]' };
+    } else if (diffDays <= 14) {
+      return { label: t('Пыльный', 'Dusty'), percent: 40, colorClass: 'text-amber-500 border-amber-500/30 bg-amber-500/5', shadowClass: 'shadow-none' };
+    } else {
+      return { label: t('Грязный (Рекомендуется помыть)', 'Dirty (Wash Recommended)'), percent: 10, colorClass: 'text-neonRose border-neonRose/30 bg-neonRose/5', shadowClass: 'shadow-[0_0_15px_rgba(244,63,94,0.15)]' };
+    }
+  };
 
   const handleOdometerUpload = async (e) => {
     const file = e.target.files?.[0];
@@ -162,6 +184,50 @@ export const DashboardView = () => {
             <span className="font-medium text-slate-500 dark:text-slate-400">{t('Всего потрачено:', 'Total spent:')}</span>
             <span className="text-neonRose font-bold text-lg">{totalSpent.toLocaleString()} {t('₽', 'RUB')}</span>
           </div>
+        </GlassCard>
+
+        {/* Cleanliness Status Card */}
+        <GlassCard className="flex flex-col">
+          <h3 className="text-sm font-semibold uppercase tracking-wider text-neonCyan mb-3">{t('Чистота автомобиля', 'Vehicle Cleanliness')}</h3>
+          {(() => {
+            const clean = getCleanlinessDetails();
+            return (
+              <div className="flex-1 flex flex-col justify-between">
+                <div>
+                  <div className={`inline-flex items-center gap-1.5 px-3 py-1 border rounded-xl font-bold text-xs ${clean.colorClass} ${clean.shadowClass}`}>
+                    <span className="w-2 h-2 rounded-full bg-current animate-pulse" />
+                    {clean.label}
+                  </div>
+                  <p className="text-xs text-slate-400 mt-3 leading-relaxed">
+                    {lastWashDate 
+                      ? `${t('Последняя мойка:', 'Last washed:')} ${lastWashDate}`
+                      : t('Автомобиль еще ни разу не мылся в системе.', 'No washed records recorded in the app.')}
+                  </p>
+                </div>
+                
+                <div className="pt-4 mt-auto">
+                  <div className="w-full bg-slate-800 rounded-full h-1.5 mb-3 overflow-hidden">
+                    <div 
+                      className={`h-1.5 rounded-full transition-all duration-500 ${
+                        clean.percent >= 75 
+                          ? 'bg-neonEmerald' 
+                          : clean.percent >= 40 
+                            ? 'bg-amber-500' 
+                            : 'bg-neonRose'
+                      }`}
+                      style={{ width: `${clean.percent}%` }}
+                    />
+                  </div>
+                  <button 
+                    onClick={() => updateLastWashDate(new Date().toISOString().split('T')[0])}
+                    className="w-full py-2 bg-neonCyan/20 hover:bg-neonCyan/35 text-neonCyan border border-neonCyan/30 rounded-xl text-xs font-bold transition-all"
+                  >
+                    💦 {t('Помыл машину', 'I Washed the Car')}
+                  </button>
+                </div>
+              </div>
+            );
+          })()}
         </GlassCard>
       </div>
     </div>

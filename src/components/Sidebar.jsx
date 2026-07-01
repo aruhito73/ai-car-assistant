@@ -12,7 +12,11 @@ import {
   FileText,
   Fuel,
   Search,
-  Settings
+  Settings,
+  Sliders,
+  ClipboardList,
+  Droplet,
+  TrendingUp
 } from 'lucide-react';
 import { useTheme } from '@/context/ThemeContext';
 
@@ -35,6 +39,10 @@ export const Sidebar = ({
     { id: 'documents', name: t('Документы', 'Documents'), icon: FileText },
     { id: 'fuel', name: t('Журнал заправок', 'Fuel Diary'), icon: Fuel },
     { id: 'obd', name: t('Поиск OBD-2', 'OBD-2 Finder'), icon: Search },
+    { id: 'tires', name: t('Калькулятор шин', 'Tire Calculator'), icon: Sliders },
+    { id: 'checklists', name: t('Чек-листы', 'Checklists'), icon: ClipboardList },
+    { id: 'fluids', name: t('Ресурс жидкостей', 'Fluid Status'), icon: Droplet },
+    { id: 'savings', name: t('Калькулятор окупаемости', 'Savings Simulator'), icon: TrendingUp },
     { id: 'chat', name: t('ИИ-Механик', 'AI Mechanic'), icon: Cpu },
     { id: 'settings', name: t('Настройки', 'Settings'), icon: Settings }
   ];

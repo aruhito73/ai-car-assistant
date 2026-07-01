@@ -14,6 +14,10 @@ import DocumentsView from '@/views/DocumentsView';
 import FuelLogView from '@/views/FuelLogView';
 import ObdLookupView from '@/views/ObdLookupView';
 import SettingsView from '@/views/SettingsView';
+import TireCalculatorView from '@/views/TireCalculatorView';
+import TripChecklistView from '@/views/TripChecklistView';
+import FluidAgingView from '@/views/FluidAgingView';
+import FuelSavingsSimView from '@/views/FuelSavingsSimView';
 
 import { useCar } from '@/context/CarContext';
 
@@ -22,14 +26,14 @@ function AppContent() {
   // Hash-based client-side router
   const [currentView, setCurrentView] = useState(() => {
     const hash = window.location.hash.replace('#', '');
-    const validViews = ['dashboard', 'profile', 'parts', 'services', 'finance', 'chat', 'documents', 'fuel', 'obd', 'settings'];
+    const validViews = ['dashboard', 'profile', 'parts', 'services', 'finance', 'chat', 'documents', 'fuel', 'obd', 'settings', 'tires', 'checklists', 'fluids', 'savings'];
     return validViews.includes(hash) ? hash : 'dashboard';
   });
 
   useEffect(() => {
     const handleHashChange = () => {
       const hash = window.location.hash.replace('#', '');
-      const validViews = ['dashboard', 'profile', 'parts', 'services', 'finance', 'chat', 'documents', 'fuel', 'obd', 'settings'];
+      const validViews = ['dashboard', 'profile', 'parts', 'services', 'finance', 'chat', 'documents', 'fuel', 'obd', 'settings', 'tires', 'checklists', 'fluids', 'savings'];
       if (validViews.includes(hash)) {
         setCurrentView(hash);
       }
@@ -46,7 +50,7 @@ function AppContent() {
   }, []);
 
   useEffect(() => {
-    const restrictedViews = ['chat', 'services', 'finance', 'documents', 'fuel'];
+    const restrictedViews = ['chat', 'services', 'finance', 'documents', 'fuel', 'checklists', 'fluids'];
     if (!car && restrictedViews.includes(currentView)) {
       setCurrentView('dashboard');
       window.location.hash = 'dashboard';
@@ -81,6 +85,14 @@ function AppContent() {
         return <ObdLookupView />;
       case 'settings':
         return <SettingsView />;
+      case 'tires':
+        return <TireCalculatorView />;
+      case 'checklists':
+        return <TripChecklistView />;
+      case 'fluids':
+        return <FluidAgingView />;
+      case 'savings':
+        return <FuelSavingsSimView />;
       default:
         return <DashboardView />;
     }

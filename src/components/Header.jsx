@@ -17,7 +17,11 @@ export const Header = ({ currentView, onMenuToggle, onViewChange }) => {
     documents: t('Документы автомобиля', 'Vehicle Documents'),
     fuel: t('Журнал заправок', 'Fuel Diary'),
     obd: t('Справочник OBD-2', 'OBD-2 Finder'),
-    settings: t('Настройки приложения', 'Settings')
+    settings: t('Настройки приложения', 'Settings'),
+    tires: t('Шинный калькулятор', 'Tire Calculator'),
+    checklists: t('Чек-листы подготовки авто', 'Car Checklists'),
+    fluids: t('Состояние тех. жидкостей', 'Technical Fluids'),
+    savings: t('Калькулятор окупаемости', 'Savings Simulator')
   };
 
   return (

@@ -41,6 +41,17 @@ export const CarProvider = ({ children }) => {
     const list = storage.getCustomIntervals() || [];
     return list.map(item => (!item.carVin && initialActiveVin) ? { ...item, carVin: initialActiveVin } : item);
   });
+  const [allTripChecklists, setAllTripChecklists] = useState(() => {
+    const list = storage.getTripChecklists() || [];
+    return list.map(item => (!item.carVin && initialActiveVin) ? { ...item, carVin: initialActiveVin } : item);
+  });
+  const [allFluidReplacements, setAllFluidReplacements] = useState(() => {
+    const list = storage.getFluidReplacements() || [];
+    return list.map(item => (!item.carVin && initialActiveVin) ? { ...item, carVin: initialActiveVin } : item);
+  });
+  const [lastWashDate, setLastWashDate] = useState(() => {
+    return storage.getLastWashDate() || '';
+  });
 
   const activeCar = cars.find(c => c.vin === activeCarVin) || cars[0] || null;
 
@@ -107,6 +118,16 @@ export const CarProvider = ({ children }) => {
         storage.saveCustomIntervals(next);
         return next;
       });
+      setAllTripChecklists((prev) => {
+        const next = prev.map(item => item.carVin === oldVin ? { ...item, carVin: profile.vin } : item);
+        storage.saveTripChecklists(next);
+        return next;
+      });
+      setAllFluidReplacements((prev) => {
+        const next = prev.map(item => item.carVin === oldVin ? { ...item, carVin: profile.vin } : item);
+        storage.saveFluidReplacements(next);
+        return next;
+      });
       setActiveCarVin(profile.vin);
     } else {
       setActiveCarVin(profile.vin);
@@ -150,6 +171,16 @@ export const CarProvider = ({ children }) => {
       storage.saveCustomIntervals(next);
       return next;
     });
+    setAllTripChecklists((prev) => {
+      const next = prev.filter(item => item.carVin !== vin);
+      storage.saveTripChecklists(next);
+      return next;
+    });
+    setAllFluidReplacements((prev) => {
+      const next = prev.filter(item => item.carVin !== vin);
+      storage.saveFluidReplacements(next);
+      return next;
+    });
 
     if (activeCarVin === vin) {
       const remainingCars = cars.filter(c => c.vin !== vin);
@@ -164,6 +195,8 @@ export const CarProvider = ({ children }) => {
   const documents = allDocuments.filter(item => !activeCarVin ? !item.carVin : item.carVin === activeCarVin);
   const fuelLog = allFuelLog.filter(item => !activeCarVin ? !item.carVin : item.carVin === activeCarVin);
   const customIntervals = allCustomIntervals.filter(item => !activeCarVin ? !item.carVin : item.carVin === activeCarVin);
+  const tripChecklists = allTripChecklists.filter(item => !activeCarVin ? !item.carVin : item.carVin === activeCarVin);
+  const fluidReplacements = allFluidReplacements.filter(item => !activeCarVin ? !item.carVin : item.carVin === activeCarVin);
 
   const addServiceLog = (log) => {
     const newLog = { id: generateId(), carVin: activeCarVin, ...log };
@@ -334,6 +367,58 @@ export const CarProvider = ({ children }) => {
     });
   };
 
+  const toggleChecklistItem = (listId, itemId) => {
+    setAllTripChecklists((prev) => {
+      const existsIndex = prev.findIndex(item => item.carVin === activeCarVin && item.listId === listId && item.itemId === itemId);
+      let next;
+      if (existsIndex >= 0) {
+        next = prev.map((item, idx) => idx === existsIndex ? { ...item, checked: !item.checked } : item);
+      } else {
+        const newItem = {
+          id: generateId(),
+          carVin: activeCarVin,
+          listId,
+          itemId,
+          checked: true
+        };
+        next = [...prev, newItem];
+      }
+      storage.saveTripChecklists(next);
+      return next;
+    });
+  };
+
+  const resetChecklist = (listId) => {
+    setAllTripChecklists((prev) => {
+      const next = prev.filter(item => !(item.carVin === activeCarVin && item.listId === listId));
+      storage.saveTripChecklists(next);
+      return next;
+    });
+  };
+
+  const logFluidReplacement = (type, date, mileage) => {
+    const newReplacement = {
+      id: generateId(),
+      carVin: activeCarVin,
+      type,
+      date,
+      mileage: Number(mileage)
+    };
+    setAllFluidReplacements((prev) => {
+      const next = prev.some(f => f.carVin === activeCarVin && f.type === type)
+        ? prev.map(f => (f.carVin === activeCarVin && f.type === type) ? newReplacement : f)
+        : [...prev, newReplacement];
+      storage.saveFluidReplacements(next);
+      return next;
+    });
+    return newReplacement;
+  };
+
+  const updateLastWashDate = (date) => {
+    setLastWashDate(date);
+    storage.saveLastWashDate(date);
+  };
+
   const clearAllData = () => {
     setCars([]);
     setActiveCarVinState(null);
@@ -343,6 +428,9 @@ export const CarProvider = ({ children }) => {
     setAllDocuments([]);
     setAllFuelLog([]);
     setAllCustomIntervals([]);
+    setAllTripChecklists([]);
+    setAllFluidReplacements([]);
+    setLastWashDate('');
     storage.clearAll();
   };
 
@@ -361,6 +449,9 @@ export const CarProvider = ({ children }) => {
         documents,
         fuelLog,
         customIntervals,
+        tripChecklists,
+        fluidReplacements,
+        lastWashDate,
         updateCarProfile,
         addServiceLog,
         updateServiceLog,
@@ -381,6 +472,10 @@ export const CarProvider = ({ children }) => {
         addCustomInterval,
         updateCustomInterval,
         deleteCustomInterval,
+        toggleChecklistItem,
+        resetChecklist,
+        logFluidReplacement,
+        updateLastWashDate,
         clearAllData
       }}
     >

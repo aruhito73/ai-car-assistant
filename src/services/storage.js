@@ -9,7 +9,28 @@ export const storageKeys = {
   ACTIVE_CAR_VIN: 'ai_active_car_vin',
   DOCUMENTS: 'ai_car_documents',
   FUEL_LOG: 'ai_car_fuel_log',
-  CUSTOM_INTERVALS: 'ai_car_custom_intervals'
+  CUSTOM_INTERVALS: 'ai_car_custom_intervals',
+  TRIP_CHECKLISTS: 'ai_car_trip_checklists',
+  FLUID_REPLACEMENTS: 'ai_car_fluid_replacements',
+  LAST_WASH_DATE: 'ai_car_last_wash_date'
+};
+
+const validateChecklist = (item) => {
+  if (!item || typeof item !== 'object' || Array.isArray(item)) return false;
+  if (typeof item.id !== 'string') return false;
+  if (typeof item.listId !== 'string') return false;
+  if (typeof item.itemId !== 'string') return false;
+  if (typeof item.checked !== 'boolean') return false;
+  return true;
+};
+
+const validateFluidReplacement = (item) => {
+  if (!item || typeof item !== 'object' || Array.isArray(item)) return false;
+  if (typeof item.id !== 'string') return false;
+  if (typeof item.type !== 'string') return false;
+  if (typeof item.date !== 'string') return false;
+  if (typeof item.mileage !== 'number' || isNaN(item.mileage)) return false;
+  return true;
 };
 
 const validateDocument = (item) => {
@@ -295,6 +316,47 @@ export const storage = {
       localStorage.setItem(storageKeys.CUSTOM_INTERVALS, JSON.stringify(intervals || []));
     } catch (e) {
       console.error('Error saving custom intervals to storage', e);
+    }
+  },
+
+  getTripChecklists() {
+    return parseArray(storageKeys.TRIP_CHECKLISTS, validateChecklist, []);
+  },
+
+  saveTripChecklists(lists) {
+    try {
+      localStorage.setItem(storageKeys.TRIP_CHECKLISTS, JSON.stringify(lists || []));
+    } catch (e) {
+      console.error('Error saving trip checklists to storage', e);
+    }
+  },
+
+  getFluidReplacements() {
+    return parseArray(storageKeys.FLUID_REPLACEMENTS, validateFluidReplacement, []);
+  },
+
+  saveFluidReplacements(fluids) {
+    try {
+      localStorage.setItem(storageKeys.FLUID_REPLACEMENTS, JSON.stringify(fluids || []));
+    } catch (e) {
+      console.error('Error saving fluid replacements to storage', e);
+    }
+  },
+
+  getLastWashDate() {
+    try {
+      return localStorage.getItem(storageKeys.LAST_WASH_DATE) || '';
+    } catch (e) {
+      console.error('Error reading last wash date from storage', e);
+      return '';
+    }
+  },
+
+  saveLastWashDate(date) {
+    try {
+      localStorage.setItem(storageKeys.LAST_WASH_DATE, date || '');
+    } catch (e) {
+      console.error('Error saving last wash date to storage', e);
     }
   },
 

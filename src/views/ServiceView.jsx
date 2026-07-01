@@ -134,6 +134,19 @@ export const ServiceView = () => {
     { value: 'General Diagnostics', label: t('Общая диагностика', 'General Diagnostics') }
   ];
 
+  const getCategoryHint = (selectedType) => {
+    switch (selectedType) {
+      case 'Oil Change':
+        return t('💡 Подсказка: Средний заправочный объем масла для этого сегмента составляет ~4.0 - 4.5 л.', '💡 Hint: Average oil capacity for this vehicle class is ~4.0 - 4.5 L.');
+      case 'Brake Inspection':
+        return t('💡 Подсказка: Новые тормозные колодки имеют толщину ~12 мм. Замените их при износе до <2 мм.', '💡 Hint: New brake pads are ~12mm thick. Replace them when worn to <2mm.');
+      case 'Tire Rotation':
+        return t('💡 Подсказка: Рекомендуемый момент затяжки колесных болтов составляет ~110 - 130 Нм.', '💡 Hint: Recommended torque spec for wheel bolts is ~110 - 130 Nm.');
+      default:
+        return null;
+    }
+  };
+
   const odometerWarning = !isEditMode && modalMileage !== '' && car && typeof car.currentMileage === 'number' && Number(modalMileage) < car.currentMileage
     ? t("Введенный пробег меньше текущего пробега автомобиля", "Mileage entered is less than the vehicle's current mileage")
     : '';
@@ -290,6 +303,11 @@ export const ServiceView = () => {
                 value={type}
                 onChange={(e) => setType(e.target.value)}
               />
+              {getCategoryHint(type) && (
+                <p className="text-[10px] text-neonCyan font-semibold leading-relaxed bg-neonCyan/5 border border-neonCyan/20 p-2 rounded-xl">
+                  {getCategoryHint(type)}
+                </p>
+              )}
               <InputField 
                 id={isModalOpen ? "inline-odometer" : "odometer"}
                 label={t('Пробег на одометре (км) *', 'Odometer (km) *')} 
@@ -541,6 +559,11 @@ export const ServiceView = () => {
                   onChange={(e) => setModalType(e.target.value)}
                   error={modalErrors.type}
                 />
+                {getCategoryHint(modalType) && (
+                  <p className="text-[10px] text-neonCyan font-semibold leading-relaxed bg-neonCyan/5 border border-neonCyan/20 p-2 rounded-xl">
+                    {getCategoryHint(modalType)}
+                  </p>
+                )}
                 
                 <div className="space-y-1">
                   <InputField 

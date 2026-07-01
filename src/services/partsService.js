@@ -2,72 +2,129 @@
 export const VEHICLE_PARTS_CATALOG = {
   Lada: {
     Granta: [
-      { name: 'Oil Filter', oem: '2108-1012005' },
-      { name: 'Timing Belt Kit', oem: '1987946282' },
-      { name: 'Engine Oil', oem: '5W-40-LADA' },
-      { name: 'Air Filter', oem: '2112-1109080' },
-      { name: 'Spark Plugs', oem: '21110-3707010-00' },
-      { name: 'Brake Pads', oem: '11180-3501080-00' }
+      { name: 'Масляный фильтр', oem: '2108-1012005', category: 'maintenance' },
+      { name: 'Ремень ГРМ с роликом', oem: '1987946282', category: 'maintenance' },
+      { name: 'Воздушный фильтр', oem: '2112-1109080', category: 'maintenance' },
+      { name: 'Свечи зажигания', oem: '21110-3707010-00', category: 'maintenance' },
+      { name: 'Колодки тормозные передние', oem: '11180-3501080-00', category: 'brakes' }
     ],
     Vesta: [
-      { name: 'Oil Filter', oem: '2108-1012005' },
-      { name: 'Air Filter', oem: '8450033130' },
-      { name: 'Spark Plugs', oem: '22401-1561R' },
-      { name: 'Brake Pads', oem: '8450031520' },
-      { name: 'Engine Oil', oem: '5W-40-LADA' }
+      { name: 'Масляный фильтр', oem: '21080-1012005-08', category: 'maintenance' },
+      { name: 'Воздушный фильтр', oem: '8450033130', category: 'maintenance' },
+      { name: 'Салонный фильтр', oem: '8450009470', category: 'maintenance' },
+      { name: 'Свечи зажигания', oem: '21120-3707010-00 (FR7LDC+)', category: 'maintenance' },
+      { name: 'Пробка поддона с кольцом', oem: '8450003017', category: 'maintenance' },
+      { name: 'Ремень генератора (с кондеем)', oem: '8450030130', category: 'maintenance' },
+      { name: 'Помпа охлаждения', oem: '21126-1307010-82', category: 'maintenance' },
+      { name: 'Тормозной диск передний', oem: '8450031131', category: 'brakes' },
+      { name: 'Колодки передние', oem: '8450031850', category: 'brakes' },
+      { name: 'Тормозной барабан задний', oem: '8450006842', category: 'brakes' },
+      { name: 'Колодки задние барабанные', oem: '8450006845', category: 'brakes' },
+      { name: 'Стойка амортизатора передняя левая', oem: '8450006787', category: 'suspension' },
+      { name: 'Стойка амортизатора передняя правая', oem: '8450006786', category: 'suspension' },
+      { name: 'Амортизатор задний', oem: '8450006788', category: 'suspension' },
+      { name: 'Рычаг передней подвески левый', oem: '8450006758', category: 'suspension' },
+      { name: 'Рычаг передней подвески правый', oem: '8450006757', category: 'suspension' },
+      { name: 'Стойка стабилизатора', oem: '8450006748', category: 'suspension' },
+      { name: 'Радиатор охлаждения основной', oem: '8450030141', category: 'cooling_electrical' },
+      { name: 'Термостат в сборе', oem: '21900-1306010-00', category: 'cooling_electrical' },
+      { name: 'Катушка зажигания', oem: '21120-3705010-15', category: 'cooling_electrical' },
+      { name: 'Генератор (120A)', oem: '8450006900', category: 'cooling_electrical' },
+      { name: 'Стартер', oem: '8450006894', category: 'cooling_electrical' },
+      { name: 'Аккумулятор 6ST-64', oem: 'LADA-6ST-64', category: 'cooling_electrical' }
     ]
   },
   Volkswagen: {
     Jetta: [
-      { name: 'Cabin Air Filter', oem: '5Q0819653' },
-      { name: 'Oil Filter', oem: '04E115561H' },
-      { name: 'Air Filter', oem: '04E129620A' },
-      { name: 'Spark Plugs', oem: '04E905612C' },
-      { name: 'Brake Pads', oem: '5Q0698151B' },
-      { name: 'Engine Oil', oem: '5W-30-VW' }
+      { name: 'Масляный фильтр', oem: '04E115561H', category: 'maintenance' },
+      { name: 'Воздушный фильтр', oem: '04E129620A', category: 'maintenance' },
+      { name: 'Салонный фильтр', oem: '5Q0819653', category: 'maintenance' },
+      { name: 'Свечи зажигания', oem: '04E905612C', category: 'maintenance' },
+      { name: 'Пробка масляного поддона', oem: 'N90288901', category: 'maintenance' },
+      { name: 'Ремень поликлиновой', oem: '04E145933A', category: 'maintenance' },
+      { name: 'Тормозной диск передний', oem: '5Q0615301A', category: 'brakes' },
+      { name: 'Колодки тормозные передние', oem: '5Q0698151B', category: 'brakes' },
+      { name: 'Тормозной диск задний', oem: '5Q0615601D', category: 'brakes' },
+      { name: 'Колодки задние', oem: '5Q0698451', category: 'brakes' },
+      { name: 'Сайлентблок переднего рычага задний', oem: '5Q0407183L', category: 'suspension' },
+      { name: 'Амортизатор передний', oem: '5Q0413023FH', category: 'suspension' },
+      { name: 'Амортизатор задний', oem: '5Q0513029HR', category: 'suspension' },
+      { name: 'Стойка стабилизатора передняя', oem: '5Q0411315G', category: 'suspension' },
+      { name: 'Радиатор охлаждения основной', oem: '5Q0121251GQ', category: 'cooling_electrical' },
+      { name: 'Насос системы охлаждения (помпа)', oem: '04E121600BD', category: 'cooling_electrical' },
+      { name: 'Катушка зажигания', oem: '04E905110K', category: 'cooling_electrical' },
+      { name: 'Генератор (140A)', oem: '04C903023T', category: 'cooling_electrical' },
+      { name: 'Стартер', oem: '02M911024A', category: 'cooling_electrical' },
+      { name: 'Аккумулятор EFB 68Ah', oem: '000915105CC', category: 'cooling_electrical' }
     ],
     Polo: [
-      { name: 'Oil Filter', oem: '03C115561H' },
-      { name: 'Air Filter', oem: '036129620J' },
-      { name: 'Spark Plugs', oem: '101905601B' },
-      { name: 'Brake Pads', oem: '6RU698151A' },
-      { name: 'Engine Oil', oem: '5W-40-VW' }
-    ]
-  },
-  Hyundai: {
-    Solaris: [
-      { name: 'Oil Filter', oem: '26300-35505' },
-      { name: 'Air Filter', oem: '28113-H8100' },
-      { name: 'Spark Plugs', oem: '18846-10060' },
-      { name: 'Brake Pads', oem: '58101-H5A25' },
-      { name: 'Engine Oil', oem: '5W-30-HYUNDAI' }
-    ]
-  },
-  Kia: {
-    Rio: [
-      { name: 'Oil Filter', oem: '26300-35505' },
-      { name: 'Air Filter', oem: '28113-H8100' },
-      { name: 'Spark Plugs', oem: '18846-10060' },
-      { name: 'Brake Pads', oem: '58101-H5A25' },
-      { name: 'Engine Oil', oem: '5W-30-KIA' }
-    ]
-  },
-  Ford: {
-    Focus: [
-      { name: 'Oil Filter', oem: '1883037' },
-      { name: 'Air Filter', oem: '1848220' },
-      { name: 'Spark Plugs', oem: '1680032' },
-      { name: 'Brake Pads', oem: '1809256' },
-      { name: 'Engine Oil', oem: '5W-20-FORD' }
+      { name: 'Масляный фильтр', oem: '03C115561H', category: 'maintenance' },
+      { name: 'Воздушный фильтр', oem: '036129620J', category: 'maintenance' },
+      { name: 'Свечи зажигания', oem: '101905601B', category: 'maintenance' },
+      { name: 'Колодки передние', oem: '6RU698151A', category: 'brakes' }
     ]
   },
   Toyota: {
     Camry: [
-      { name: 'Oil Filter', oem: '04152-YZZA1' },
-      { name: 'Air Filter', oem: '17801-25020' },
-      { name: 'Spark Plugs', oem: '90919-01249' },
-      { name: 'Brake Pads', oem: '04465-33470' },
-      { name: 'Engine Oil', oem: '0W-20-TOYOTA' }
+      { name: 'Масляный фильтр', oem: '04152-YZZA1', category: 'maintenance' },
+      { name: 'Воздушный фильтр', oem: '17801-25020', category: 'maintenance' },
+      { name: 'Свечи зажигания', oem: '90919-01249', category: 'maintenance' },
+      { name: 'Колодки тормозные передние', oem: '04465-33470', category: 'brakes' }
+    ]
+  },
+  Mercedes: {
+    'G63 AMG': [
+      // Расходники ТО
+      { name: 'Масляный фильтр', oem: 'A 177 180 01 10 или A 278 180 00 09', category: 'maintenance' },
+      { name: 'Воздушный фильтр (левый)', oem: 'A 177 094 00 00', category: 'maintenance' },
+      { name: 'Воздушный фильтр (правый)', oem: 'A 177 094 01 00', category: 'maintenance' },
+      { name: 'Свечи зажигания', oem: 'A 000 159 05 00', category: 'maintenance' },
+      { name: 'Пробка поддона', oem: 'N 000000 008789', category: 'maintenance' },
+      { name: 'Уплотнительное кольцо', oem: 'N 007603 014106', category: 'maintenance' },
+      { name: 'Ремень генератора', oem: 'A 003 993 41 96', category: 'maintenance' },
+      { name: 'Ремень кондиционера', oem: 'A 003 993 42 96', category: 'maintenance' },
+      { name: 'Помпа охлаждения', oem: 'A 177 200 04 00', category: 'maintenance' },
+      // Тормозная система
+      { name: 'Тормозной диск передний', oem: 'A 463 421 05 00', category: 'brakes' },
+      { name: 'Колодки передние', oem: 'A 000 420 41 05 / A 000 420 13 03', category: 'brakes' },
+      { name: 'Тормозной диск задний', oem: 'A 463 423 00 00', category: 'brakes' },
+      { name: 'Колодки задние', oem: 'A 000 420 52 02 / A 000 420 37 05 / A 000 420 15 06', category: 'brakes' },
+      { name: 'Актуатор электроручника', oem: 'A 167 906 200 464', category: 'brakes' },
+      // Подвеска & Ходовая
+      { name: 'Кардан передний', oem: 'A 463 410 04 00', category: 'suspension' },
+      { name: 'Кардан задний', oem: 'A 463 410 17 00', category: 'suspension' },
+      { name: 'Опора двигателя (левая)', oem: 'A 463 240 06 00 / A 463 241 11 00', category: 'suspension' },
+      { name: 'Опора двигателя (правая)', oem: 'A 463 240 05 00 / A 463 241 12 00', category: 'suspension' },
+      { name: 'Амортизатор передний (лев/прав)', oem: 'A 463 320 53 01 / A 463 320 55 01', category: 'suspension' },
+      { name: 'Амортизатор задний (лев/прав)', oem: 'A 463 320 35 02 ... 61 01 / A 463 320 36 02 ... 62 01', category: 'suspension' },
+      { name: 'Рычаг верхний (лев/прав)', oem: 'A 463 330 79 01 / A 463 330 80 01', category: 'suspension' },
+      { name: 'Рычаг нижний (лев/прав)', oem: 'A 463 330 95 01 / A 463 330 96 01', category: 'suspension' },
+      { name: 'Поворотный кулак (лев/прав)', oem: 'A 463 332 00 00 / A 463 332 01 00', category: 'suspension' },
+      { name: 'Ступица передняя', oem: 'A 463 334 00 00', category: 'suspension' },
+      { name: 'Привод передний (лев/прав)', oem: 'A 463 300 702 / A 463 300 802', category: 'suspension' },
+      { name: 'Рулевая тяга (лев/прав)', oem: 'A 4633 304 701 / A 4633 304 801', category: 'suspension' },
+      { name: 'Рычаги задние продольный низ', oem: 'A 463 350 30 01', category: 'suspension' },
+      { name: 'Рычаги задние поперечный', oem: 'A 463 350 10 01', category: 'suspension' },
+      { name: 'Рычаги задние верхний', oem: 'A 463 350 31 01', category: 'suspension' },
+      // Системы охлаждения & Электрика
+      { name: 'Радиатор основной', oem: 'A 167 500 03 00', category: 'cooling_electrical' },
+      { name: 'Вентилятор', oem: 'A 167 906 91 06 / A 167 906 19 04', category: 'cooling_electrical' },
+      { name: 'Радиатор нижний передний правый', oem: 'A 099 500 58 00', category: 'cooling_electrical' },
+      { name: 'Радиатор нижний передний правый задний', oem: 'A 099 500 59 00', category: 'cooling_electrical' },
+      { name: 'Радиатор нижний передний левый', oem: 'A 099 500 58 00', category: 'cooling_electrical' },
+      { name: 'Масляный радиатор ДВС', oem: 'A 099 500 04 01', category: 'cooling_electrical' },
+      { name: 'Масляный охладитель КПП', oem: 'A 099 500 60 00', category: 'cooling_electrical' },
+      { name: 'Опора КПП', oem: 'A 1672 407 100', category: 'cooling_electrical' },
+      { name: 'Генератор', oem: 'A 000 906 12 07', category: 'cooling_electrical' },
+      { name: 'Стартер', oem: 'A 278 906 06 00', category: 'cooling_electrical' },
+      { name: 'Компрессор кондиционера', oem: 'A 000 830 47 02', category: 'cooling_electrical' },
+      { name: 'Бензонасос', oem: 'A 463 470 590 064', category: 'cooling_electrical' },
+      { name: 'Аккумулятор', oem: 'A 001 982 820 826 (12V/92AH)', category: 'cooling_electrical' },
+      { name: 'Датчик давления шины', oem: 'A 000 905 21 02 (Аналог Schrader: 36106887147)', category: 'cooling_electrical' },
+      { name: 'Лобовое стекло', oem: 'A 463 670 39 00 / A 463 670 24 00', category: 'cooling_electrical' },
+      { name: 'Парктроники передние (крайние 2 шт)', oem: 'A 000 905 56 04', category: 'cooling_electrical' },
+      { name: 'Парктроники передние (центр 4 шт)', oem: 'A 000 905 55 04', category: 'cooling_electrical' },
+      { name: 'Парктроники задние (6 шт)', oem: 'A 000 905 55 04', category: 'cooling_electrical' }
     ]
   }
 };
@@ -125,6 +182,13 @@ export const DISEASES_DB = {
       'Dashboard melting/cracking (under sun)',
       'Brake disc warping'
     ]
+  },
+  Mercedes: {
+    'G63 AMG': [
+      'Engine oil leaks (valve cover gaskets)',
+      'Front differential actuator failure',
+      'Electronic active dampers clicking'
+    ]
   }
 };
 
@@ -180,6 +244,12 @@ export const VEHICLE_SPECS_DB = {
     Corolla: {
       engine: '1.6 Dual VVT-i',
       specs: { hp: 122, fuelType: 'Petrol', weight: '1250 kg' }
+    }
+  },
+  Mercedes: {
+    'G63 AMG': {
+      engine: '4.0 Biturbo V8 (M177)',
+      specs: { hp: 585, fuelType: 'Petrol', weight: '2560 kg' }
     }
   }
 };

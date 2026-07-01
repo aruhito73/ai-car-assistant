@@ -75,9 +75,11 @@ export const PartsView = () => {
       );
     }
 
-    return (
+    const hasCategories = partsToRender.some(part => part.category);
+
+    const renderGrid = (items) => (
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {partsToRender.map((part, index) => {
+        {items.map((part, index) => {
           const isSaved = bookmarkedParts.some(bp => bp.oem === part.oem);
           const links = part.shopLinks || {};
           
@@ -153,7 +155,7 @@ export const PartsView = () => {
                         href={links.ozon}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="flex-1 sm:flex-initial flex items-center justify-center gap-1 px-3 py-1.5 text-xs font-semibold rounded-lg bg-blue-50 dark:bg-blue-500/10 border border-blue-200 dark:border-blue-500/30 text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-500/20 transition-all"
+                        className="flex-1 sm:flex-initial flex items-center justify-center gap-1 px-3 py-1.5 text-xs font-semibold rounded-lg bg-sky-50 dark:bg-sky-500/10 border border-sky-200 dark:border-sky-500/30 text-sky-700 dark:text-sky-400 hover:bg-sky-100 dark:hover:bg-sky-500/20 transition-all"
                       >
                         Ozon <ExternalLink className="w-3 h-3" />
                       </a>
@@ -172,7 +174,7 @@ export const PartsView = () => {
                         href={links.emex}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="flex-1 sm:flex-initial flex items-center justify-center gap-1 px-3 py-1.5 text-xs font-semibold rounded-lg bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/30 text-red-700 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-500/20 transition-all"
+                        className="flex-1 sm:flex-initial flex items-center justify-center gap-1 px-3 py-1.5 text-xs font-semibold rounded-lg bg-cyan-50 dark:bg-cyan-500/10 border border-cyan-200 dark:border-cyan-500/30 text-cyan-700 dark:text-cyan-400 hover:bg-cyan-100 dark:hover:bg-cyan-500/20 transition-all"
                       >
                         Emex <ExternalLink className="w-3 h-3" />
                       </a>
@@ -189,6 +191,54 @@ export const PartsView = () => {
                 </div>
               </div>
             </GlassCard>
+          );
+        })}
+      </div>
+    );
+
+    if (!hasCategories) {
+      return renderGrid(partsToRender);
+    }
+
+    const grouped = {
+      maintenance: [],
+      brakes: [],
+      suspension: [],
+      cooling_electrical: [],
+      general: []
+    };
+
+    partsToRender.forEach(part => {
+      const cat = part.category || 'general';
+      if (grouped[cat]) {
+        grouped[cat].push(part);
+      } else {
+        grouped['general'].push(part);
+      }
+    });
+
+    const categoriesMap = {
+      maintenance: { title: t('Расходники ТО', 'Maintenance Parts'), icon: '🛠️' },
+      brakes: { title: t('Тормозная система', 'Brake System'), icon: '🛑' },
+      suspension: { title: t('Подвеска & Ходовая', 'Suspension & Steering'), icon: '🔩' },
+      cooling_electrical: { title: t('Системы охлаждения & Электрика', 'Cooling & Electrical'), icon: '⚡' },
+      general: { title: t('Общие детали', 'General Parts'), icon: '📦' }
+    };
+
+    return (
+      <div className="space-y-6">
+        {Object.entries(categoriesMap).map(([key, info]) => {
+          const list = grouped[key];
+          if (!list || list.length === 0) return null;
+
+          return (
+            <div key={key} className="space-y-3">
+              <h3 className="text-sm font-bold uppercase tracking-wider text-neonCyan flex items-center gap-2">
+                <span>{info.icon}</span>
+                <span>{info.title} ({list.length})</span>
+              </h3>
+              {renderGrid(list)}
+            </div>
           );
         })}
       </div>

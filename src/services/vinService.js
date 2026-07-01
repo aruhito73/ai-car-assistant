@@ -148,6 +148,20 @@ export async function decodeVin(vin) {
     };
   }
 
+  // Mercedes G63 AMG (WMI WDB, W1N, W1K, WDD)
+  if (wmi === 'WDB' || wmi === 'W1N' || wmi === 'W1K' || wmi === 'WDD') {
+    decoded = {
+      make: 'Mercedes',
+      model: 'G63 AMG',
+      year: decodedYear,
+      engine: '4.0 Biturbo V8 (M177)',
+      transmission: 'Automatic',
+      specs: { hp: 585, fuelType: 'Petrol', weight: '2560 kg' },
+      diseases: DISEASES_DB.Mercedes?.['G63 AMG'] || [],
+      parts: getPartsWithShopLinks({ make: 'Mercedes', model: 'G63 AMG' })
+    };
+  }
+
   if (decoded) {
     return decoded;
   }

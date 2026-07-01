@@ -13,13 +13,13 @@ describe('Parts Service Business Logic', () => {
 
   it('Matches catalog parts for known Granta profile', () => {
     const parts = getPartsForVehicle(ladaCar);
-    expect(parts.some(p => p.name === 'Oil Filter' && p.oem === '2108-1012005')).toBe(true);
-    expect(parts.some(p => p.name === 'Timing Belt Kit' && p.oem === '1987946282')).toBe(true);
+    expect(parts.some(p => p.name === 'Масляный фильтр' && p.oem === '2108-1012005')).toBe(true);
+    expect(parts.some(p => p.name === 'Ремень ГРМ с роликом' && p.oem === '1987946282')).toBe(true);
   });
 
   it('Matches catalog parts for known Jetta profile', () => {
     const parts = getPartsForVehicle(jettaCar);
-    expect(parts.some(p => p.name === 'Cabin Air Filter' && p.oem === '5Q0819653')).toBe(true);
+    expect(parts.some(p => p.name === 'Салонный фильтр' && p.oem === '5Q0819653')).toBe(true);
   });
 
   it('Generates plausible parts for unknown vehicles', () => {
@@ -82,6 +82,6 @@ describe('Parts Service Business Logic', () => {
     // Search Jetta cabin filter OEM (not local but exists globally)
     const results = searchParts(localParts, '5Q0819653');
     expect(results.length).toBe(1);
-    expect(results[0].name).toBe('Cabin Air Filter');
+    expect(results[0].name).toBe('Салонный фильтр');
   });
 });

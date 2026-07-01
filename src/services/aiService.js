@@ -120,27 +120,48 @@ export async function analyzeAcousticNoise(audioFile) {
  * Generates a sales ad in Markdown.
  * @param {object} carProfile 
  * @param {Array} history 
+ * @param {boolean} isRussian
  * @returns {string} Sales ad text
  */
-export function generateSaleAd(carProfile, history = []) {
+export function generateSaleAd(carProfile, history = [], isRussian = false) {
   if (!carProfile || Object.keys(carProfile).length === 0) {
     throw new Error("Please create a vehicle profile first to generate a sales ad");
   }
   
-  const model = (carProfile.model || '').toLowerCase();
-  const make = (carProfile.make || '').toLowerCase();
+  const model = carProfile.model || '';
+  const make = carProfile.make || '';
+  const year = carProfile.year || 2020;
+  const mileage = carProfile.currentMileage || 0;
+  const trans = carProfile.transmission || 'Automatic';
+  const hp = carProfile.specs?.hp || 100;
+  const eng = carProfile.engine || '1.6 MPI';
 
-  if (make.includes('lada') || model.includes('granta')) {
-    return mockData.saleAd.ladaGranta;
-  } else if (make.includes('volkswagen') || make.includes('vw') || model.includes('jetta')) {
-    return mockData.saleAd.vwJetta;
+  const makeLower = make.toLowerCase();
+  const modelLower = model.toLowerCase();
+
+  // Comma-based or space-based formatting helper for mileage
+  const formatNumRu = (num) => String(num).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+  const formatNumEn = (num) => String(num).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+
+  if (isRussian) {
+    const transText = trans === 'Manual' ? 'Механическая' : 'Автоматическая';
+    if (makeLower.includes('lada') || modelLower.includes('granta')) {
+      return `Продается: Lada Granta ${year} года выпуска. ${transText} коробка передач, двигатель ${eng} мощностью ${hp} л.с. Текущий пробег составляет ${formatNumRu(mileage)} км. Регулярно обслуживался, замена масла производилась по регламенту. Отличный надежный бюджетный автомобиль!`;
+    } else if (makeLower.includes('volkswagen') || makeLower.includes('vw') || modelLower.includes('jetta')) {
+      return `Продается: Volkswagen Jetta ${year} года выпуска. ${transText} коробка передач, двигатель ${eng} мощностью ${hp} л.с. Текущий пробег составляет ${formatNumRu(mileage)} км. История обслуживания полностью задокументирована, коробка DSG и двигатель находятся в отличном состоянии.`;
+    } else {
+      const transTextLower = trans === 'Manual' ? 'механика' : 'автомат';
+      return `Продается: ${make} ${model} ${year} года выпуска. Трансмиссия: ${transTextLower}, двигатель мощностью ${hp} л.с. Текущий пробег составляет ${formatNumRu(mileage)} км. Сервисная история задокументирована. Отличный и надежный автомобиль!`;
+    }
+  }
+
+  if (makeLower.includes('lada') || modelLower.includes('granta')) {
+    const transText = trans === 'Manual' ? 'Manual' : 'Automatic';
+    return `For Sale: ${year} Lada Granta. ${transText} transmission, ${eng} engine with ${hp} HP. Current mileage is ${formatNumEn(mileage)} km. Regularly serviced, with oil changes performed on schedule. Great reliable budget car!`;
+  } else if (makeLower.includes('volkswagen') || makeLower.includes('vw') || modelLower.includes('jetta')) {
+    const transText = trans === 'Manual' ? 'Manual' : 'Automatic';
+    return `For Sale: ${year} Volkswagen Jetta. ${transText} transmission, ${eng} engine with ${hp} HP. Current mileage is ${formatNumEn(mileage)} km. Service history is fully documented, DSG and engine are in excellent condition.`;
   } else {
-    const trans = carProfile.transmission || 'Automatic';
-    const mk = carProfile.make || 'Generic';
-    const md = carProfile.model || 'Import';
-    const yr = carProfile.year || 2020;
-    const hp = carProfile.specs?.hp || 100;
-    const mil = carProfile.currentMileage || 0;
-    return `For Sale: ${yr} ${mk} ${md}. ${trans} transmission, engine with ${hp} HP. Current mileage is ${mil.toLocaleString()} km. Service history is documented. Great reliable vehicle!`;
+    return `For Sale: ${year} ${make} ${model}. ${trans} transmission, engine with ${hp} HP. Current mileage is ${formatNumEn(mileage)} km. Service history is documented. Great reliable vehicle!`;
   }
 }

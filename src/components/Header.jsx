@@ -18,57 +18,57 @@ export const Header = ({ currentView, onMenuToggle, onViewChange }) => {
 
   return (
     <header className={`
-      flex h-16 items-center justify-between px-4 md:px-6 border-b z-30
+      flex h-16 items-center justify-between px-4 md:px-8 border-b z-30 transition-colors duration-300
       ${glassmorphism 
-        ? 'bg-white/40 border-slate-200/50 dark:bg-darkCard/40 dark:border-white/5 backdrop-blur-md' 
-        : 'bg-white border-slate-200 dark:bg-slate-900 dark:border-slate-800'}
+        ? 'bg-white/70 border-slate-200/50 dark:bg-darkBg/80 dark:border-white/[0.08] backdrop-blur-xl' 
+        : 'bg-white border-slate-200 dark:bg-[#09090b] dark:border-white/[0.08]'}
     `}>
       {/* Menu Hamburger Trigger & Page Title */}
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-4">
         <button 
           onClick={onMenuToggle}
-          className="p-2 text-slate-500 hover:text-slate-800 rounded-lg hover:bg-slate-100 dark:text-slate-400 dark:hover:text-white dark:hover:bg-white/5 md:hidden"
+          className="p-2 -ml-2 text-slate-500 hover:text-slate-900 rounded-lg hover:bg-slate-100 dark:text-slate-400 dark:hover:text-white dark:hover:bg-white/[0.08] md:hidden transition-colors"
         >
           <Menu className="w-5 h-5" />
         </button>
-        <h1 className="text-lg font-semibold md:text-xl text-slate-800 dark:text-slate-200">
+        <h1 className="text-lg md:text-xl font-bold tracking-tight text-slate-900 dark:text-white">
           {viewTitles[currentView] || t('ИИ Автоассистент', 'AI Car Assistant')}
         </h1>
       </div>
 
       {/* Car Quick Spec Widget + System theme/glass controls */}
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-5">
         {/* active car widget */}
         <div 
           onClick={() => onViewChange('profile')}
           className={`
-            hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold cursor-pointer transition-all duration-200
+            hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold cursor-pointer transition-all duration-300 ease-spring hover:scale-[1.02] active:scale-95
             ${car 
-              ? 'bg-emerald-50 dark:bg-neonEmerald/10 border border-emerald-200 dark:border-neonEmerald/30 text-emerald-700 dark:text-neonEmerald hover:bg-emerald-100 dark:hover:bg-neonEmerald/20' 
-              : 'bg-rose-50 dark:bg-neonRose/10 border border-rose-200 dark:border-neonRose/30 text-rose-700 dark:text-neonRose hover:bg-rose-100 dark:hover:bg-neonRose/20'}
+              ? 'bg-emerald-500/10 dark:bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/20' 
+              : 'bg-rose-500/10 dark:bg-rose-500/10 border border-rose-500/20 text-rose-600 dark:text-rose-400 hover:bg-rose-500/20'}
           `}
         >
           {car ? (
             <span>
-              {car.make} {car.model} • {car.currentMileage?.toLocaleString()} {t('км', 'km')}
+              {car.make} {car.model} • <span className="opacity-80">{car.currentMileage?.toLocaleString()} {t('км', 'km')}</span>
             </span>
           ) : (
-            <span className="flex items-center gap-1">
+            <span className="flex items-center gap-1.5">
               <AlertTriangle className="w-3.5 h-3.5" /> {t('Нет автомобиля', 'No vehicle')}
             </span>
           )}
         </div>
 
         {/* Theme/Layout controls */}
-        <div className="flex items-center gap-1.5 border-l border-slate-200 dark:border-white/10 pl-4">
+        <div className="flex items-center gap-1 sm:border-l border-slate-200 dark:border-white/[0.08] sm:pl-5">
           {/* Glass Toggle */}
           <button 
             onClick={toggleGlassmorphism}
             className={`
-              p-2 rounded-lg transition-all duration-200
+              p-2 rounded-full transition-all duration-300 hover:scale-105 active:scale-95
               ${glassmorphism 
-                ? 'text-cyan-600 bg-cyan-50 dark:text-neonCyan dark:bg-neonCyan/10 hover:bg-cyan-100 dark:hover:bg-neonCyan/20' 
-                : 'text-slate-500 hover:text-slate-800 hover:bg-slate-100 dark:text-slate-400 dark:hover:text-white dark:hover:bg-white/5'}
+                ? 'text-neonCyan bg-neonCyan/10 hover:bg-neonCyan/20' 
+                : 'text-slate-500 hover:text-slate-900 hover:bg-slate-100 dark:text-slate-400 dark:hover:text-white dark:hover:bg-white/[0.08]'}
             `}
             title="Toggle Glassmorphism"
           >
@@ -78,7 +78,7 @@ export const Header = ({ currentView, onMenuToggle, onViewChange }) => {
           {/* Theme Mode Toggle */}
           <button 
             onClick={toggleTheme}
-            className="p-2 text-slate-500 hover:text-slate-800 rounded-lg hover:bg-slate-100 dark:text-slate-400 dark:hover:text-white dark:hover:bg-white/5"
+            className="p-2 text-slate-500 hover:text-slate-900 rounded-full hover:bg-slate-100 dark:text-slate-400 dark:hover:text-white dark:hover:bg-white/[0.08] transition-all duration-300 hover:scale-105 active:scale-95"
             title="Toggle Theme"
           >
             {theme === 'dark' ? <Moon className="w-4 h-4" /> : <Sun className="w-4 h-4" />}

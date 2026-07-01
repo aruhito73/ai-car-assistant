@@ -56,7 +56,7 @@ describe('ServiceView Stress and Adversarial Tests', () => {
     expect(screen.getByText(/Overdue by 70\D*200/i)).toBeInTheDocument();
   });
 
-  it('3. should verify inline form validations and adversarial inputs bypassing checks', () => {
+  it('3. should verify inline form validations and reject invalid inputs', () => {
     // Seed vehicle
     storage.saveCarProfile({
       vin: 'XTA219000H1234567',
@@ -81,28 +81,44 @@ describe('ServiceView Stress and Adversarial Tests', () => {
     const costInput = screen.getByLabelText(/Cost \(\$\) \*/i);
     const notesInput = screen.getByLabelText('Notes');
 
+    // Test 1: Future Date
     fireEvent.change(typeSelect, { target: { value: 'Oil Change' } });
-    fireEvent.change(odometerInput, { target: { value: '1000' } }); // lower than 85200
+    fireEvent.change(odometerInput, { target: { value: '1000' } }); 
     fireEvent.change(dateInput, { target: { value: '2099-12-31' } }); // future date
-    fireEvent.change(costInput, { target: { value: '-250' } }); // negative cost
+    fireEvent.change(costInput, { target: { value: '250' } }); 
     fireEvent.change(notesInput, { target: { value: 'Adversarial entry' } });
+
+    fireEvent.click(submitBtn);
+    expect(screen.getByText(/Service date cannot be in the future|Дата обслуживания не может быть в будущем/i)).toBeInTheDocument();
+    expect(storage.getServiceHistory().length).toBe(0);
+
+    // Test 2: Negative Cost
+    fireEvent.change(dateInput, { target: { value: '2025-05-10' } });
+    fireEvent.change(costInput, { target: { value: '-250' } }); // negative cost
+
+    fireEvent.click(submitBtn);
+    expect(screen.getByText(/Cost must be a positive number|Стоимость должна быть положительным числом/i)).toBeInTheDocument();
+    expect(storage.getServiceHistory().length).toBe(0);
+
+    // Test 3: Correct values
+    fireEvent.change(costInput, { target: { value: '250' } }); // valid cost
 
     fireEvent.click(submitBtn);
 
     // Verify it was successfully added (no crash, form was cleared, and it appears in the list)
-    expect(screen.queryByText(/Please fill in all required fields/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/Please fill in all required fields|Cost must be a positive number|Service date cannot be in the future/i)).not.toBeInTheDocument();
     
     // Check that it's rendered in the list
     expect(screen.getAllByText('Oil Change').length).toBeGreaterThan(0);
     expect(screen.getAllByText(/Mileage:\s*1\D*000/i).length).toBeGreaterThan(0);
     expect(screen.getByText('Adversarial entry')).toBeInTheDocument();
     
-    // Verify it's persisted in storage (and contains future date and negative cost)
+    // Verify it's persisted in storage
     const logs = storage.getServiceHistory();
     expect(logs.length).toBe(1);
     expect(logs[0].mileage).toBe(1000);
-    expect(logs[0].date).toBe('2099-12-31');
-    expect(logs[0].cost).toBe(-250);
+    expect(logs[0].date).toBe('2025-05-10');
+    expect(logs[0].cost).toBe(250);
   });
 
   it('4. should verify strict validations on the modal popup form', () => {

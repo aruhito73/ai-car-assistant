@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useCar } from '@/context/CarContext';
 import { useTheme } from '@/context/ThemeContext';
 import GlassCard from '@/components/GlassCard';
@@ -6,15 +6,26 @@ import InputField from '@/components/InputField';
 import GlassButton from '@/components/GlassButton';
 import { decodeVin } from '@/services/vinService';
 import { recognizeSTS, recognizeDashboard } from '@/services/ocrService';
+import { Trash2 } from 'lucide-react';
 
 export const ProfileView = () => {
   const { t } = useTheme();
-  const { car, updateCarProfile } = useCar();
+  const { 
+    car, 
+    cars = [], 
+    activeCarVin, 
+    setActiveCarVin, 
+    addCarProfile, 
+    deleteCarProfile, 
+    updateCarProfile 
+  } = useCar();
+
   const [vin, setVin] = useState(car?.vin || '');
   const [vinError, setVinError] = useState('');
   const [validationError, setValidationError] = useState('');
   const [ocrError, setOcrError] = useState('');
-  const [isEditing, setIsEditing] = useState(!car);
+  const [isEditing, setIsEditing] = useState(!car && cars.length === 0);
+  const [isAdding, setIsAdding] = useState(false);
 
   const [make, setMake] = useState(car?.make || '');
   const [model, setModel] = useState(car?.model || '');
@@ -22,6 +33,26 @@ export const ProfileView = () => {
   const [mileage, setMileage] = useState(car?.currentMileage || '');
   const [engine, setEngine] = useState(car?.engine || '');
   const [transmission, setTransmission] = useState(car?.transmission || 'Automatic');
+
+  // Sync inputs on active car change
+  useEffect(() => {
+    if (!isAdding) {
+      setVin(car?.vin || '');
+      setMake(car?.make || '');
+      setModel(car?.model || '');
+      setYear(car?.year || '');
+      setMileage(car?.currentMileage || '');
+      setEngine(car?.engine || '');
+      setTransmission(car?.transmission || 'Automatic');
+    }
+  }, [car, isAdding]);
+
+  // Adjust edit state if cars count changes to 0
+  useEffect(() => {
+    if (cars.length === 0) {
+      setIsEditing(true);
+    }
+  }, [cars]);
 
   const handleDecodeVIN = async () => {
     setVinError('');
@@ -45,6 +76,36 @@ export const ProfileView = () => {
     } catch (err) {
       setVinError(err.message);
     }
+  };
+
+  const handleStartAdd = () => {
+    setVin('');
+    setMake('');
+    setModel('');
+    setYear('');
+    setMileage('');
+    setEngine('');
+    setTransmission('Automatic');
+    setIsEditing(true);
+    setIsAdding(true);
+    setValidationError('');
+    setVinError('');
+    setOcrError('');
+  };
+
+  const handleCancel = () => {
+    setIsEditing(false);
+    setIsAdding(false);
+    setVin(car?.vin || '');
+    setMake(car?.make || '');
+    setModel(car?.model || '');
+    setYear(car?.year || '');
+    setMileage(car?.currentMileage || '');
+    setEngine(car?.engine || '');
+    setTransmission(car?.transmission || 'Automatic');
+    setValidationError('');
+    setVinError('');
+    setOcrError('');
   };
 
   const handleSave = (e) => {
@@ -76,7 +137,7 @@ export const ProfileView = () => {
       return;
     }
 
-    updateCarProfile({
+    const profileData = {
       vin: vin.toUpperCase().trim() || 'MANUAL-ENTRY',
       make,
       model,
@@ -85,8 +146,16 @@ export const ProfileView = () => {
       transmission,
       currentMileage: numericMileage,
       yearlyMileage: car?.yearlyMileage || 15000
-    });
+    };
+
+    if (isAdding || !car) {
+      addCarProfile(profileData);
+    } else {
+      updateCarProfile(profileData);
+    }
+    
     setIsEditing(false);
+    setIsAdding(false);
   };
 
   const handleStsUpload = async (e) => {
@@ -149,6 +218,54 @@ export const ProfileView = () => {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="space-y-6">
+          {/* My Garage */}
+          <GlassCard>
+            <h3 className="text-lg font-bold text-neonEmerald mb-4">{t('Мой гараж', 'My Garage')}</h3>
+            {cars.length === 0 ? (
+              <p className="text-sm text-slate-400 mb-4">{t('Гараж пуст. Добавьте свой первый автомобиль.', 'Garage is empty. Add your first vehicle.')}</p>
+            ) : (
+              <div className="space-y-3 mb-4">
+                {cars.map((c) => {
+                  const isActive = c.vin === activeCarVin;
+                  return (
+                    <div 
+                      key={c.vin}
+                      className={`p-3 rounded-xl border flex items-center justify-between gap-4 transition-all duration-300 ${
+                        isActive 
+                          ? 'bg-neonCyan/10 border-neonCyan dark:border-cyan-500/50 shadow-neon-cyan/5' 
+                          : 'bg-white/5 border-slate-200/50 dark:border-white/5 hover:border-slate-300 dark:hover:border-white/10'
+                      }`}
+                    >
+                      <div className="min-w-0 flex-1 cursor-pointer" onClick={() => setActiveCarVin(c.vin)}>
+                        <div className="flex items-center gap-2">
+                          <span className="font-bold text-sm text-slate-800 dark:text-slate-100">{c.make} {c.model}</span>
+                          {isActive && (
+                            <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-neonCyan/25 text-neonCyan">
+                              {t('Активен', 'Active')}
+                            </span>
+                          )}
+                        </div>
+                        <p className="text-xs text-slate-450 mt-0.5">
+                          {c.year} • {c.currentMileage?.toLocaleString()} {t('км', 'km')}
+                        </p>
+                      </div>
+                      <button
+                        onClick={() => deleteCarProfile(c.vin)}
+                        className="p-1.5 text-slate-400 hover:text-neonRose hover:bg-neonRose/10 rounded-lg transition-colors"
+                        title={t('Удалить автомобиль', 'Delete Vehicle')}
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+            <GlassButton variant="primary" onClick={handleStartAdd} className="w-full">
+              {t('Добавить новый автомобиль', 'Add New Vehicle')}
+            </GlassButton>
+          </GlassCard>
+
           <GlassCard>
             <h3 className="text-lg font-bold text-neonCyan mb-4">{t('Декодер VIN', 'VIN Decoder')}</h3>
             <div className="space-y-4">
@@ -217,38 +334,40 @@ export const ProfileView = () => {
               </div>
               <div className="flex gap-2">
                 <GlassButton id="save-profile" variant="success" type="submit">{t('Сохранить профиль', 'Save Profile')}</GlassButton>
-                {car && <GlassButton variant="secondary" type="button" onClick={() => setIsEditing(false)}>{t('Отмена', 'Cancel')}</GlassButton>}
+                {(car || cars.length > 0) && <GlassButton variant="secondary" type="button" onClick={handleCancel}>{t('Отмена', 'Cancel')}</GlassButton>}
               </div>
             </form>
           ) : (
-            <div className="space-y-4 text-sm">
-              <div className="grid grid-cols-2 gap-2 border-b border-slate-200/50 dark:border-white/5 pb-2">
-                <span className="text-slate-500 dark:text-slate-400">VIN</span>
-                <span className="font-semibold text-right">{car.vin}</span>
+            car && (
+              <div className="space-y-4 text-sm">
+                <div className="grid grid-cols-2 gap-2 border-b border-slate-200/50 dark:border-white/5 pb-2">
+                  <span className="text-slate-500 dark:text-slate-400">VIN</span>
+                  <span className="font-semibold text-right">{car.vin}</span>
+                </div>
+                <div className="grid grid-cols-2 gap-2 border-b border-slate-200/50 dark:border-white/5 pb-2">
+                  <span className="text-slate-500 dark:text-slate-400">{t('Марка / Модель', 'Make / Model')}</span>
+                  <span className="font-semibold text-right">{car.make} {car.model}</span>
+                </div>
+                <div className="grid grid-cols-2 gap-2 border-b border-slate-200/50 dark:border-white/5 pb-2">
+                  <span className="text-slate-500 dark:text-slate-400">{t('Год выпуска', 'Year')}</span>
+                  <span className="font-semibold text-right">{car.year}</span>
+                </div>
+                <div className="grid grid-cols-2 gap-2 border-b border-slate-200/50 dark:border-white/5 pb-2">
+                  <span className="text-slate-500 dark:text-slate-400">{t('Пробег', 'Mileage')}</span>
+                  <span className="font-semibold text-right">{car.currentMileage?.toLocaleString()} {t('км', 'km')}</span>
+                </div>
+                <div className="grid grid-cols-2 gap-2 border-b border-slate-200/50 dark:border-white/5 pb-2">
+                  <span className="text-slate-500 dark:text-slate-400">{t('Двигатель', 'Engine')}</span>
+                  <span className="font-semibold text-right">{car.engine || t('Н/Д', 'N/A')}</span>
+                </div>
+                <button 
+                  onClick={() => setIsEditing(true)}
+                  className="text-xs text-neonCyan hover:underline font-semibold text-left"
+                >
+                  {t('Редактировать профиль', 'Edit Profile')}
+                </button>
               </div>
-              <div className="grid grid-cols-2 gap-2 border-b border-slate-200/50 dark:border-white/5 pb-2">
-                <span className="text-slate-500 dark:text-slate-400">{t('Марка / Модель', 'Make / Model')}</span>
-                <span className="font-semibold text-right">{car.make} {car.model}</span>
-              </div>
-              <div className="grid grid-cols-2 gap-2 border-b border-slate-200/50 dark:border-white/5 pb-2">
-                <span className="text-slate-500 dark:text-slate-400">{t('Год выпуска', 'Year')}</span>
-                <span className="font-semibold text-right">{car.year}</span>
-              </div>
-              <div className="grid grid-cols-2 gap-2 border-b border-slate-200/50 dark:border-white/5 pb-2">
-                <span className="text-slate-500 dark:text-slate-400">{t('Пробег', 'Mileage')}</span>
-                <span className="font-semibold text-right">{car.currentMileage?.toLocaleString()} {t('км', 'km')}</span>
-              </div>
-              <div className="grid grid-cols-2 gap-2 border-b border-slate-200/50 dark:border-white/5 pb-2">
-                <span className="text-slate-500 dark:text-slate-400">{t('Двигатель', 'Engine')}</span>
-                <span className="font-semibold text-right">{car.engine || t('Н/Д', 'N/A')}</span>
-              </div>
-              <button 
-                onClick={() => setIsEditing(true)}
-                className="text-xs text-neonCyan hover:underline font-semibold text-left"
-              >
-                {t('Редактировать профиль', 'Edit Profile')}
-              </button>
-            </div>
+            )
           )}
         </GlassCard>
       </div>

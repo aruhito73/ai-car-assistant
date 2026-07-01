@@ -124,7 +124,7 @@ export const ChatView = () => {
   const handleGenerateAd = () => {
     try {
       setSaleAdError('');
-      const ad = generateSaleAd(car, serviceHistory);
+      const ad = generateSaleAd(car, serviceHistory, t('ru', 'en') === 'ru');
       setSaleAdResult(ad);
     } catch (error) {
       setSaleAdError(error.message);

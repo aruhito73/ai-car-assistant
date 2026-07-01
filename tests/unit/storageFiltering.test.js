@@ -11,7 +11,7 @@ describe('Storage Service - Filtering & Exception Robustness', () => {
     const mixedHistory = [
       { id: 'srv-1', date: '2026-01-01', mileage: 1000, type: 'Oil Change', cost: 150, notes: 'Valid' },
       { id: 'srv-2', date: '2026-01-02', mileage: '2000', type: 'Tire rotation', cost: 50 }, // invalid mileage (string)
-      { id: 'srv-3', date: '2026-01-03', mileage: 3000, type: 'Brakes', cost: 200, extra: 'key' }, // invalid extra key
+      { id: 'srv-3', date: '2026-01-03', mileage: 3000, type: 'Brakes', cost: 200, extra: 'key' }, // extra key is now allowed
       null, // null element
       'not-an-object', // non-object element
       { id: 'srv-4', date: '2026-01-04', mileage: 4000, type: 'Diagnostics', cost: 100 } // Valid
@@ -20,9 +20,10 @@ describe('Storage Service - Filtering & Exception Robustness', () => {
     localStorage.setItem(storageKeys.SERVICE_HISTORY, JSON.stringify(mixedHistory));
 
     const result = storage.getServiceHistory();
-    expect(result).toHaveLength(2);
+    expect(result).toHaveLength(3);
     expect(result[0].id).toBe('srv-1');
-    expect(result[1].id).toBe('srv-4');
+    expect(result[1].id).toBe('srv-3');
+    expect(result[2].id).toBe('srv-4');
   });
 
   it('should filter out invalid elements from mixed expenses array', () => {
@@ -72,7 +73,7 @@ describe('Storage Service - Filtering & Exception Robustness', () => {
       extraKey: 'not_allowed'
     };
     localStorage.setItem(storageKeys.CAR_PROFILE, JSON.stringify(extraKeysProfile));
-    expect(storage.getCarProfile()).toBeNull(); // Should fail validation due to extraKey
+    expect(storage.getCarProfile()).toEqual(extraKeysProfile); // Extra keys are accepted now
 
     // 2. Profile with missing keys but valid types
     // Note: validateCarProfile allows missing keys if all present keys are valid and checker exists,

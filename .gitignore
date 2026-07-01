@@ -9,3 +9,5 @@ playwright-report
 .vercel
 .agents
 *.md.tmp
+
+.vercel

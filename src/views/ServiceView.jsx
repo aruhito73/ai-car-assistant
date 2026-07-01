@@ -137,6 +137,20 @@ export const ServiceView = () => {
       return;
     }
 
+    // Future Date Validation
+    const todayStr = new Date().toISOString().split('T')[0];
+    if (date > todayStr) {
+      setError(t('Дата обслуживания не может быть в будущем', 'Service date cannot be in the future'));
+      return;
+    }
+
+    // Cost Range Validation
+    const costVal = Number(cost);
+    if (isNaN(costVal) || costVal <= 0 || costVal > 1000000) {
+      setError(t('Стоимость должна быть положительным числом', 'Cost must be a positive number'));
+      return;
+    }
+
     addServiceLog({
       type,
       mileage: Number(mileage),

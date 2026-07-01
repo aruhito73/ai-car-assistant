@@ -20,7 +20,7 @@ describe('ServiceView Challenger Stress & Boundary Tests', () => {
     });
   });
 
-  it('verifies that the inline form does not enforce future date validation or cost range validation', async () => {
+  it('verifies that the inline form enforces future date validation and cost range validation', async () => {
     render(
       <ThemeProvider>
         <CarProvider>
@@ -44,32 +44,47 @@ describe('ServiceView Challenger Stress & Boundary Tests', () => {
     expect(typeSelect).toBeInTheDocument();
     expect(odometerInput).toBeInTheDocument();
 
-    // 1. Submit with invalid data: future date, negative cost, mileage lower than current mileage
+    // 1. Submit with invalid future date
     fireEvent.change(typeSelect, { target: { value: 'Oil Change' } });
-    fireEvent.change(odometerInput, { target: { value: '70000' } }); // Lower than 85200
+    fireEvent.change(odometerInput, { target: { value: '70000' } }); 
     fireEvent.change(dateInput, { target: { value: '2035-12-31' } }); // Future date
-    fireEvent.change(costInput, { target: { value: '-500' } }); // Negative cost
-    fireEvent.change(notesInput, { target: { value: 'Bypassing checks' } });
+    fireEvent.change(costInput, { target: { value: '1000' } }); 
+    fireEvent.change(notesInput, { target: { value: 'Testing validations' } });
 
     await act(async () => {
       fireEvent.click(submitBtn);
     });
 
-    // Check if error is displayed. It shouldn't be because inline form doesn't validate!
-    const errorMsg = screen.queryByText(/Cost must be a positive number/i) || 
-                     screen.queryByText(/Service date cannot be in the future/i) ||
-                     screen.queryByText(/Mileage entered is less than/i) ||
-                     screen.queryByText(/Please fill in all required fields/i);
-    
-    expect(errorMsg).toBeNull();
+    // Check that date validation blocks submission
+    expect(screen.getByText(/Service date cannot be in the future|Дата обслуживания не может быть в будущем/i)).toBeInTheDocument();
+    expect(storage.getServiceHistory().length).toBe(0);
 
-    // Verify it is saved in storage regardless
+    // 2. Submit with negative cost
+    fireEvent.change(dateInput, { target: { value: '2025-05-10' } });
+    fireEvent.change(costInput, { target: { value: '-500' } }); // Negative cost
+
+    await act(async () => {
+      fireEvent.click(submitBtn);
+    });
+
+    // Check that cost validation blocks submission
+    expect(screen.getByText(/Cost must be a positive number|Стоимость должна быть положительным числом/i)).toBeInTheDocument();
+    expect(storage.getServiceHistory().length).toBe(0);
+
+    // 3. Submit valid data
+    fireEvent.change(costInput, { target: { value: '500' } }); // Positive cost
+
+    await act(async () => {
+      fireEvent.click(submitBtn);
+    });
+
+    // Verify it is saved in storage successfully
     const logs = storage.getServiceHistory();
     expect(logs.length).toBe(1);
-    expect(logs[0].notes).toBe('Bypassing checks');
-    expect(logs[0].cost).toBe(-500);
+    expect(logs[0].notes).toBe('Testing validations');
+    expect(logs[0].cost).toBe(500);
     expect(logs[0].mileage).toBe(70000);
-    expect(logs[0].date).toBe('2035-12-31');
+    expect(logs[0].date).toBe('2025-05-10');
   });
 
   it('verifies that the modal form DOES enforce validation rules', async () => {

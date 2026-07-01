@@ -1,9 +1,20 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+  
   body {
-    @apply bg-darkBg text-slate-100 min-h-screen font-sans;
+    @apply bg-slate-50 text-slate-900 min-h-screen font-sans antialiased selection:bg-neonCyan selection:text-white dark:bg-darkBg dark:text-slate-100;
+  }
+  
+  /* Focus outlines for impeccable accessibility */
+  *:focus-visible {
+    @apply outline-none ring-2 ring-neonCyan ring-offset-2 ring-offset-white dark:ring-offset-darkBg transition-shadow;
   }
 }

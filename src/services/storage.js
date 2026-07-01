@@ -4,7 +4,9 @@ export const storageKeys = {
   EXPENSES: 'ai_car_expenses',
   REMINDERS: 'ai_car_reminders',
   THEME: 'ai_theme',
-  GLASSMORPHISM: 'ai_glassmorphism'
+  GLASSMORPHISM: 'ai_glassmorphism',
+  CARS: 'ai_cars',
+  ACTIVE_CAR_VIN: 'ai_active_car_vin'
 };
 
 const validateServiceLog = (item) => {
@@ -15,10 +17,6 @@ const validateServiceLog = (item) => {
   if (typeof item.type !== 'string') return false;
   if (typeof item.cost !== 'number' || isNaN(item.cost)) return false;
   if (item.notes !== undefined && item.notes !== null && typeof item.notes !== 'string') return false;
-  const allowedKeys = ['id', 'date', 'mileage', 'type', 'cost', 'notes'];
-  for (const key of Object.keys(item)) {
-    if (!allowedKeys.includes(key)) return false;
-  }
   return true;
 };
 
@@ -31,10 +29,6 @@ const validateExpense = (item) => {
   const categories = ["Fuel", "Repair", "Insurance", "Parking", "Fines", "Other"];
   if (!categories.includes(item.category)) return false;
   if (item.notes !== undefined && item.notes !== null && typeof item.notes !== 'string') return false;
-  const allowedKeys = ['id', 'date', 'category', 'cost', 'notes'];
-  for (const key of Object.keys(item)) {
-    if (!allowedKeys.includes(key)) return false;
-  }
   return true;
 };
 
@@ -48,10 +42,6 @@ const validateReminder = (item) => {
   const types = ["insurance", "tyres", "maintenance"];
   if (!types.includes(item.type)) return false;
   if (item.dueMileage !== undefined && item.dueMileage !== null && (typeof item.dueMileage !== 'number' || isNaN(item.dueMileage))) return false;
-  const allowedKeys = ['id', 'type', 'title', 'dueDate', 'active', 'dueMileage'];
-  for (const key of Object.keys(item)) {
-    if (!allowedKeys.includes(key)) return false;
-  }
   return true;
 };
 
@@ -74,7 +64,7 @@ const validateCarProfile = (parsed) => {
   };
   for (const key of Object.keys(parsed)) {
     const checker = checkers[key];
-    if (!checker || !checker(parsed[key])) return false;
+    if (checker && !checker(parsed[key])) return false;
   }
   return true;
 };
@@ -93,27 +83,97 @@ const parseArray = (key, validator, defaultValue = []) => {
 };
 
 export const storage = {
-  getCarProfile() {
+  getCars() {
+    try {
+      const data = localStorage.getItem(storageKeys.CARS);
+      if (!data) {
+        // Fallback migration from CAR_PROFILE
+        const single = this.getCarProfileLegacy();
+        if (single) {
+          const cars = [single];
+          this.saveCars(cars);
+          return cars;
+        }
+        return [];
+      }
+      const parsed = JSON.parse(data);
+      if (!Array.isArray(parsed)) return [];
+      return parsed.filter(validateCarProfile);
+    } catch (e) {
+      console.error('Error reading cars from storage', e);
+      return [];
+    }
+  },
+
+  saveCars(cars) {
+    try {
+      localStorage.setItem(storageKeys.CARS, JSON.stringify(cars || []));
+    } catch (e) {
+      console.error('Error saving cars to storage', e);
+    }
+  },
+
+  getActiveCarVin() {
+    try {
+      const vin = localStorage.getItem(storageKeys.ACTIVE_CAR_VIN);
+      if (vin) return vin;
+      const cars = this.getCars();
+      return cars[0] ? cars[0].vin : null;
+    } catch (e) {
+      console.error('Error reading active car VIN', e);
+      return null;
+    }
+  },
+
+  saveActiveCarVin(vin) {
+    try {
+      if (vin) {
+        localStorage.setItem(storageKeys.ACTIVE_CAR_VIN, vin);
+      } else {
+        localStorage.removeItem(storageKeys.ACTIVE_CAR_VIN);
+      }
+    } catch (e) {
+      console.error('Error saving active car VIN', e);
+    }
+  },
+
+  getCarProfileLegacy() {
     try {
       const data = localStorage.getItem(storageKeys.CAR_PROFILE);
       if (!data) return null;
       const parsed = JSON.parse(data);
       return validateCarProfile(parsed) ? parsed : null;
     } catch (e) {
-      console.error('Error reading car profile from storage', e);
       return null;
     }
+  },
+
+  getCarProfile() {
+    const cars = this.getCars();
+    const activeVin = this.getActiveCarVin();
+    return cars.find(c => c.vin === activeVin) || cars[0] || null;
   },
 
   saveCarProfile(profile) {
     try {
       if (profile) {
         localStorage.setItem(storageKeys.CAR_PROFILE, JSON.stringify(profile));
+        const cars = this.getCars() || [];
+        const index = cars.findIndex(c => c.vin === profile.vin);
+        if (index >= 0) {
+          cars[index] = profile;
+        } else {
+          cars.push(profile);
+        }
+        this.saveCars(cars);
+        this.saveActiveCarVin(profile.vin);
       } else {
         localStorage.removeItem(storageKeys.CAR_PROFILE);
+        this.saveCars([]);
+        this.saveActiveCarVin(null);
       }
     } catch (e) {
-      console.error('Error saving car profile to storage', e);
+      console.error('Error saving car profile', e);
     }
   },
 

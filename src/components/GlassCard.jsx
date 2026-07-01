@@ -11,11 +11,11 @@ export const GlassCard = ({
   const { glassmorphism } = useTheme();
   
   const baseStyle = glassmorphism 
-    ? 'bg-white/60 dark:bg-darkCard backdrop-blur-md border border-slate-200/50 dark:border-white/10 shadow-lg dark:shadow-glass text-slate-800 dark:text-slate-100'
-    : 'bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-md dark:shadow-lg text-slate-900 dark:text-slate-100';
+    ? 'bg-white/70 dark:bg-darkCard backdrop-blur-xl border border-slate-200/50 dark:border-white/[0.08] shadow-sm dark:shadow-none text-slate-800 dark:text-slate-100'
+    : 'bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm text-slate-900 dark:text-slate-100';
     
   const hoverStyle = hover 
-    ? 'transition-all duration-300 hover:border-cyan-400 dark:hover:border-neonCyan/50 hover:shadow-lg dark:hover:shadow-[0_0_15px_rgba(6,182,212,0.2)]' 
+    ? 'transition-all duration-300 ease-spring hover:-translate-y-1 hover:shadow-lg dark:hover:shadow-glass-hover hover:border-slate-300 dark:hover:border-white/[0.15] active:scale-[0.98]' 
     : '';
 
   return (

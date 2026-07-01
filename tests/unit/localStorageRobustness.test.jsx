@@ -84,7 +84,7 @@ describe('LocalStorage Robustness and Error Parsing Tests', () => {
             else {
               for (const key of Object.keys(parsed)) {
                 const checker = checkers[key];
-                if (!checker || !checker(parsed[key])) {
+                if (checker && !checker(parsed[key])) {
                   isValid = false;
                   break;
                 }
@@ -138,7 +138,7 @@ describe('LocalStorage Robustness and Error Parsing Tests', () => {
             else {
               for (const key of Object.keys(parsed)) {
                 const checker = checkers[key];
-                if (!checker || !checker(parsed[key])) {
+                if (checker && !checker(parsed[key])) {
                   isValid = false;
                   break;
                 }

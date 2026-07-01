@@ -132,12 +132,6 @@ export const DashboardView = () => {
           )}
         </div>
       )}
-      
-      {ocrError && (
-        <div className="p-4 bg-rose-500/10 border border-rose-500/20 rounded-2xl text-rose-600 dark:text-rose-400 text-sm font-medium animate-shake" role="alert">
-          {ocrError}
-        </div>
-      )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
         {/* Active Vehicle Status */}
@@ -148,23 +142,12 @@ export const DashboardView = () => {
             <p className="text-slate-500 dark:text-slate-400 text-sm font-medium mb-2">
               {t('Одометр:', 'Odometer:')} <span className="font-bold text-slate-900 dark:text-white text-lg ml-1">{car.currentMileage?.toLocaleString()} {t('км', 'km')}</span>
             </p>
-            <label className="inline-block mt-2 px-4 py-2 bg-slate-100 hover:bg-slate-200 dark:bg-white/5 dark:hover:bg-white/10 text-slate-700 dark:text-slate-300 rounded-xl text-xs font-semibold cursor-pointer transition-colors duration-200">
-              {t('Обновить по фото (OCR)', 'Update via Photo (OCR)')}
-              <input 
-                type="file" 
-                id="odometer-upload" 
-                data-testid="odometer-uploader" 
-                onChange={handleOdometerUpload} 
-                className="hidden" 
-                accept=".png,.jpg,.jpeg" 
-              />
-            </label>
           </div>
         </GlassCard>
 
         <GlassCard hover onClick={() => window.location.hash = 'chat'} className="cursor-pointer flex flex-col group">
           <h3 className="text-sm font-semibold uppercase tracking-wider text-neonCyan mb-3">{t('Диагностика и ИИ', 'Diagnostics & AI')}</h3>
-          <p className="text-slate-600 dark:text-slate-400 text-sm leading-relaxed mb-6">{t('Запустите акустический анализ или поиск ошибок OBD-2 для поиска неисправностей.', 'Run acoustic diagnostic or OBD-2 code analyzer to lookup issues.')}</p>
+          <p className="text-slate-600 dark:text-slate-400 text-sm leading-relaxed mb-6">{t('Запустите поиск ошибок OBD-2 для диагностики неисправностей.', 'Run OBD-2 code analyzer to lookup diagnostic issues.')}</p>
           <div className="mt-auto flex justify-between items-center pt-4 border-t border-slate-200/50 dark:border-white/[0.08] text-sm">
             <span className="font-medium text-slate-500 dark:text-slate-400">{t('Статус ИИ:', 'AI Status:')}</span>
             <span className="text-neonCyan font-bold flex items-center gap-1.5">

@@ -161,17 +161,7 @@ export const ChatView = () => {
         >
           {t('Коды ошибок OBD-2', 'OBD-2 Codes')}
         </button>
-        <button
-          id="acoustic-tab"
-          onClick={() => setActiveTab('acoustic')}
-          className={`px-4 py-2 font-medium text-sm transition-colors border-b-2 ${
-            activeTab === 'acoustic'
-              ? 'border-neonCyan text-neonCyan dark:text-cyan-300'
-              : 'border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'
-          }`}
-        >
-          {t('Акустическая диагностика', 'Acoustic Diagnosis')}
-        </button>
+
         <button
           id="copilot-tab"
           onClick={() => setActiveTab('copilot')}

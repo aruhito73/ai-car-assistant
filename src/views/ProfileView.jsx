@@ -282,38 +282,6 @@ export const ProfileView = () => {
             </div>
           </GlassCard>
 
-          <GlassCard>
-            <h3 className="text-lg font-bold text-neonCyan mb-4">{t('Распознавание документов (OCR)', 'OCR Document Upload')}</h3>
-            <div className="space-y-4">
-              <div className="flex flex-col gap-1 w-full">
-                <label htmlFor="sts-upload" className="text-xs font-semibold text-slate-500 dark:text-slate-400">
-                  {t('Загрузить фото СТС (для распознавания VIN)', 'Upload STS Card (registration document)')}
-                </label>
-                <input
-                  id="sts-upload"
-                  data-testid="sts-uploader"
-                  type="file"
-                  accept=".png,.jpg,.jpeg"
-                  onChange={handleStsUpload}
-                  className="w-full text-sm text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-neonCyan/10 file:text-neonCyan hover:file:bg-neonCyan/20 cursor-pointer"
-                />
-              </div>
-
-              <div className="flex flex-col gap-1 w-full">
-                <label htmlFor="odometer-upload" className="text-xs font-semibold text-slate-500 dark:text-slate-400">
-                  {t('Загрузить фото приборной панели (для пробега)', 'Upload Dashboard Photo (for mileage)')}
-                </label>
-                <input
-                  id="odometer-upload"
-                  data-testid="odometer-uploader"
-                  type="file"
-                  accept=".png,.jpg,.jpeg"
-                  onChange={handleOdometerUpload}
-                  className="w-full text-sm text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-neonEmerald/10 file:text-neonEmerald hover:file:bg-neonEmerald/20 cursor-pointer"
-                />
-              </div>
-            </div>
-          </GlassCard>
         </div>
 
         <GlassCard>

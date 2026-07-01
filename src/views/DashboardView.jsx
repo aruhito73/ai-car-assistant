@@ -94,14 +94,17 @@ export const DashboardView = () => {
 
       {/* Alert banners for documents and service */}
       {(expiringDocsCount > 0 || overdueCustomIntervalsCount > 0) && (
-        <div className="space-y-3">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 animate-in slide-in-from-top-4 fade-in duration-700 ease-out-expo">
           {expiringDocsCount > 0 && (
             <div 
               onClick={() => window.location.hash = 'documents'}
-              className="p-4 bg-amber-500/10 border border-amber-500/30 text-amber-600 dark:text-amber-400 text-sm font-semibold rounded-2xl cursor-pointer hover:bg-amber-500/15 transition-all flex items-center gap-2"
+              className="relative overflow-hidden p-5 bg-gradient-to-r from-amber-500/10 to-transparent border border-amber-500/30 text-amber-700 dark:text-amber-400 text-sm font-semibold rounded-2xl cursor-pointer hover:bg-amber-500/15 hover:shadow-[0_0_20px_rgba(245,158,11,0.15)] transition-all duration-300 ease-spring group flex items-center gap-3"
             >
-              <AlertTriangle className="w-5 h-5 animate-pulse text-amber-500" />
-              <span>
+              <div className="absolute top-0 left-0 w-1 h-full bg-amber-500" />
+              <div className="p-2 bg-amber-500/20 rounded-xl group-hover:scale-110 transition-transform duration-300">
+                <AlertTriangle className="w-5 h-5 animate-pulse text-amber-500" />
+              </div>
+              <span className="flex-1 leading-tight">
                 {t(
                   `Внимание: У вас есть документы (${expiringDocsCount}), срок действия которых истекает или уже истек!`,
                   `Warning: You have documents (${expiringDocsCount}) expiring soon or already expired!`
@@ -113,10 +116,13 @@ export const DashboardView = () => {
           {overdueCustomIntervalsCount > 0 && (
             <div 
               onClick={() => window.location.hash = 'services'}
-              className="p-4 bg-neonRose/10 border border-neonRose/30 text-neonRose text-sm font-semibold rounded-2xl cursor-pointer hover:bg-neonRose/15 transition-all flex items-center gap-2"
+              className="relative overflow-hidden p-5 bg-gradient-to-r from-neonRose/10 to-transparent border border-neonRose/30 text-rose-700 dark:text-neonRose text-sm font-semibold rounded-2xl cursor-pointer hover:bg-neonRose/15 hover:shadow-[0_0_20px_rgba(244,63,94,0.15)] transition-all duration-300 ease-spring group flex items-center gap-3"
             >
-              <AlertTriangle className="w-5 h-5 animate-pulse" />
-              <span>
+              <div className="absolute top-0 left-0 w-1 h-full bg-neonRose" />
+              <div className="p-2 bg-neonRose/20 rounded-xl group-hover:scale-110 transition-transform duration-300">
+                <AlertTriangle className="w-5 h-5 animate-pulse text-neonRose" />
+              </div>
+              <span className="flex-1 leading-tight">
                 {t(
                   `Внимание: Требуется техническое обслуживание автомобиля (${overdueCustomIntervalsCount} задач)!`,
                   `Warning: Maintenance is overdue for your vehicle (${overdueCustomIntervalsCount} tasks)!`
@@ -128,7 +134,7 @@ export const DashboardView = () => {
       )}
       
       {ocrError && (
-        <div className="p-4 bg-rose-500/10 border border-rose-500/20 rounded-2xl text-rose-600 dark:text-rose-400 text-sm font-medium" role="alert">
+        <div className="p-4 bg-rose-500/10 border border-rose-500/20 rounded-2xl text-rose-600 dark:text-rose-400 text-sm font-medium animate-shake" role="alert">
           {ocrError}
         </div>
       )}

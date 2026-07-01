@@ -3,7 +3,7 @@ import { Menu, Sun, Moon, Layers, Layers3, AlertTriangle } from 'lucide-react';
 import { useCar } from '@/context/CarContext';
 import { useTheme } from '@/context/ThemeContext';
 
-export const Header = ({ currentView, onMenuToggle, onViewChange }) => {
+export const Header = ({ currentView, onMenuToggle, onViewChange, isScrolled = false }) => {
   const { car } = useCar();
   const { theme, toggleTheme, glassmorphism, toggleGlassmorphism, t } = useTheme();
 
@@ -24,12 +24,18 @@ export const Header = ({ currentView, onMenuToggle, onViewChange }) => {
     savings: t('Калькулятор окупаемости', 'Savings Simulator')
   };
 
+  const headerBgClass = glassmorphism
+    ? isScrolled 
+      ? 'bg-white/70 border-slate-200/50 dark:bg-darkBg/80 dark:border-white/[0.08] backdrop-blur-xl shadow-sm'
+      : 'bg-transparent border-transparent dark:border-transparent'
+    : isScrolled
+      ? 'bg-white border-slate-200 dark:bg-[#09090b] dark:border-white/[0.08] shadow-sm'
+      : 'bg-transparent border-transparent dark:border-transparent';
+
   return (
     <header className={`
-      flex h-16 items-center justify-between px-4 md:px-8 border-b z-30 transition-colors duration-300
-      ${glassmorphism 
-        ? 'bg-white/70 border-slate-200/50 dark:bg-darkBg/80 dark:border-white/[0.08] backdrop-blur-xl' 
-        : 'bg-white border-slate-200 dark:bg-[#09090b] dark:border-white/[0.08]'}
+      flex h-16 items-center justify-between px-4 md:px-8 z-30 transition-all duration-500 ease-out-expo border-b
+      ${headerBgClass}
     `}>
       {/* Menu Hamburger Trigger & Page Title */}
       <div className="flex items-center gap-4">
@@ -68,7 +74,7 @@ export const Header = ({ currentView, onMenuToggle, onViewChange }) => {
         </div>
 
         {/* Theme/Layout controls */}
-        <div className="flex items-center gap-1 sm:border-l border-slate-200 dark:border-white/[0.08] sm:pl-5">
+        <div className="flex items-center gap-1 sm:border-l border-slate-200 dark:border-white/[0.08] sm:pl-5 transition-colors duration-500">
           {/* Glass Toggle */}
           <button 
             onClick={toggleGlassmorphism}

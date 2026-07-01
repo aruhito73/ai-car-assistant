@@ -4,6 +4,7 @@ import { useTheme } from '@/context/ThemeContext';
 import GlassCard from '@/components/GlassCard';
 import InputField from '@/components/InputField';
 import GlassButton from '@/components/GlassButton';
+import EmptyState from '@/components/EmptyState';
 import { Trash2, Fuel, AlertTriangle, TrendingUp } from 'lucide-react';
 import {
   ResponsiveContainer,
@@ -133,15 +134,13 @@ export const FuelLogView = () => {
 
   if (!car) {
     return (
-      <div className="flex flex-col items-center justify-center p-12 text-center">
-        <AlertTriangle className="w-12 h-12 text-neonRose mb-4 animate-pulse" />
-        <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2">
-          {t('Нет активного автомобиля', 'No Active Vehicle')}
-        </h3>
-        <p className="text-slate-550 dark:text-slate-400 max-w-md text-sm">
-          {t('Пожалуйста, добавьте автомобиль в профиле, чтобы вести журнал заправок.', 'Please add a vehicle in profile tab first to manage fuel logs.')}
-        </p>
-      </div>
+      <EmptyState 
+        icon={AlertTriangle}
+        title={t('Нет активного автомобиля', 'No Active Vehicle')}
+        description={t('Пожалуйста, добавьте автомобиль в профиле, чтобы вести журнал заправок.', 'Please add a vehicle in profile tab first to manage fuel logs.')}
+        actionLabel={t('Добавить авто', 'Add Vehicle')}
+        onAction={() => window.location.hash = 'profile'}
+      />
     );
   }
 
